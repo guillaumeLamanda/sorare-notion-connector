@@ -1,0 +1,11 @@
+
+schema: ./src/http/post-sorare_update/sorare/graphql/schema.graphql
+documents: ./src/http/post-sorare_update/sorare/graphql/operations/**/*.graphql
+extensions:
+  codegen:
+    generates:
+      ./src/http/post-sorare_update/sorare/graphql/sdk.ts:
+        plugins:
+          - typescript
+          - typescript-operations
+          - typescript-graphql-request

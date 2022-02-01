@@ -1,0 +1,6102 @@
+schema {
+  query: Query
+  mutation: Mutation
+  subscription: Subscription
+}
+"An Account"
+type Account implements Node {
+  accountable: Accountable!
+  escrowAccount: Boolean!
+  id: ID!
+  owner: AccountOwner
+  sorareManaged: Boolean!
+}
+"Object that can be an account owner"
+union AccountOwner = Contract | User
+"Object that can be an account accountable"
+union Accountable =
+    CommonAccount
+  | EthereumAccount
+  | LoomAccount
+  | StarkwareAccount
+type Age {
+  cutOffDate: ISO8601Date!
+  max: Int
+  min: Int
+}
+"An announcement"
+type Announcement implements Node {
+  content: String!
+  createdAt: ISO8601DateTime!
+  id: ID!
+  title: String!
+}
+"The connection type for Announcement."
+type AnnouncementConnection {
+  "A list of edges."
+  edges: [AnnouncementEdge!]!
+  "A list of nodes."
+  nodes: [Announcement!]!
+  "Information to aid in pagination."
+  pageInfo: PageInfo!
+}
+"An edge in a connection."
+type AnnouncementEdge {
+  "A cursor for use in pagination."
+  cursor: String!
+  "The item at the end of the edge."
+  node: Announcement
+}
+"A user notification regarding an Announcement"
+type AnnouncementNotification implements NotificationInterface {
+  announcement: Announcement!
+  createdAt: ISO8601DateTime!
+  id: ID!
+  name: String!
+  read: Boolean!
+  user: CurrentUser!
+}
+"An anonymous User"
+type AnonymousUser implements BlockchainUserInterface {
+  cardsCount: Int!
+  ethVaultId: Int
+  ethereumAddress: String!
+  id: ID!
+  sorareAddress: String
+  starkKey: String
+  starkKeyRegistered: Boolean!
+}
+"An Auction on a Card"
+type Auction implements EnglishAuctionInterface & Node {
+  belongsToUser: Boolean!
+    @deprecated(reason: "subscriptions do not scale if user dependent")
+  bestBid: BidWithRates
+  bestBidBelongsToUser: Boolean!
+    @deprecated(reason: "subscriptions do not scale if user dependent")
+  "The `bids` field cannot be nested within a list."
+  bids(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): BidConnection!
+  bidsCount: Int!
+  blockchainId: String!
+  cancelled: Boolean!
+  card: Card! @deprecated(reason: "Use `cards` instead")
+  cards: [Card!]!
+  contentProvider: EnglishAuctionContentProvider
+  contract: Contract!
+  creditCardFee: Float!
+  "Current price, in wei."
+  currentPrice: String!
+  deal: Deal! @deprecated(reason: "Use limitOrders instead")
+  endDate: ISO8601DateTime!
+  "ID of the object."
+  id: ID!
+  "List of LimitOrder objects used as a payload to sign for the `bid` mutation."
+  limitOrders(
+    "Bid amount included in the LimitOrder payload."
+    amount: String!
+  ): [LimitOrder!]
+  "Minimum next bid amount, in wei."
+  minNextBid: String!
+  minSignatureExpirationDate: ISO8601DateTime!
+  name: String!
+  number: Int! @deprecated(reason: "Use blockchainId as unique identifier")
+  open: Boolean!
+  slug: String!
+  startDate: ISO8601DateTime!
+}
+"The connection type for Auction."
+type AuctionConnection {
+  "A list of edges."
+  edges: [AuctionEdge!]!
+  "A list of nodes."
+  nodes: [Auction!]!
+  "Information to aid in pagination."
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+"An edge in a connection."
+type AuctionEdge {
+  "A cursor for use in pagination."
+  cursor: String!
+  "The item at the end of the edge."
+  node: Auction
+}
+"A user notification regarding an Auction"
+type AuctionNotification implements NotificationInterface {
+  auction: BundledAuction!
+  bid: Bid
+  createdAt: ISO8601DateTime!
+  id: ID!
+  name: String!
+  read: Boolean!
+  user: CurrentUser!
+}
+enum Award {
+  CHILDHOOD_TEAM
+  FAVORITE_NUMBER
+  FIRST_COME_FIRST_SERVED
+  FIRST_DIP
+  HIGHEST_BIDDER
+  MAKING_IT_RAIN
+  MATCHING_NUMBERS
+  NATIONAL_SERVICE
+  OUT_THE_DOOR
+  YOUR_BIGGEST_FAN
+}
+enum AwardCategory {
+  MANAGER
+  COLLECTOR
+}
+"A Bid in an auction"
+type Bid implements Node {
+  "Bid amount, in wei."
+  amount: String!
+  bidder: BlockchainUser
+  createdAt: ISO8601DateTime!
+  englishAuction: BundledAuction!
+  fiatPayment: Boolean!
+  id: ID!
+}
+"The connection type for Bid."
+type BidConnection {
+  "A list of edges."
+  edges: [BidEdge!]!
+  "A list of nodes."
+  nodes: [Bid!]!
+  "Information to aid in pagination."
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+"An edge in a connection."
+type BidEdge {
+  "A cursor for use in pagination."
+  cursor: String!
+  "The item at the end of the edge."
+  node: Bid
+}
+"A bid with conversion rates"
+type BidWithRates implements Node {
+  "Bid amount, in wei."
+  amount: String!
+  amountInFiat: Fiat!
+  bidder: BlockchainUser
+  createdAt: ISO8601DateTime!
+  englishAuction: BundledAuction!
+  fiatPayment: Boolean!
+  id: ID!
+}
+"Object that have a blockchain address to interact with the platform"
+union BlockchainUser = AnonymousUser | User
+"Blockchain info"
+interface BlockchainUserInterface {
+  cardsCount: Int!
+  ethVaultId: Int
+  ethereumAddress: String!
+  sorareAddress: String
+  starkKey: String
+  starkKeyRegistered: Boolean!
+}
+"An Auction on a bundle of Cards"
+type BundledAuction implements EnglishAuctionInterface & Node {
+  belongsToUser: Boolean!
+    @deprecated(reason: "subscriptions do not scale if user dependent")
+  bestBid: BidWithRates
+  bestBidBelongsToUser: Boolean!
+    @deprecated(reason: "subscriptions do not scale if user dependent")
+  "The `bids` field cannot be nested within a list."
+  bids(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): BidConnection!
+  bidsCount: Int!
+  blockchainId: String!
+  cancelled: Boolean!
+  card: Card! @deprecated(reason: "Use field cards instead")
+  cards: [Card!]!
+  contentProvider: EnglishAuctionContentProvider
+  contract: Contract!
+  creditCardFee: Float!
+  "Current price, in wei."
+  currentPrice: String!
+  deal: Deal! @deprecated(reason: "Use limitOrders instead")
+  endDate: ISO8601DateTime!
+  "ID of the object."
+  id: ID!
+  "List of LimitOrder objects used as a payload to sign for the `bid` mutation."
+  limitOrders(
+    "Bid amount included in the LimitOrder payload."
+    amount: String!
+  ): [LimitOrder!]
+  "Minimum next bid amount, in wei."
+  minNextBid: String!
+  minSignatureExpirationDate: ISO8601DateTime!
+  name: String!
+  number: Int! @deprecated(reason: "Use blockchainId as unique identifier")
+  open: Boolean!
+  slug: String!
+  startDate: ISO8601DateTime!
+}
+"The connection type for BundledAuction."
+type BundledAuctionConnection {
+  "A list of edges."
+  edges: [BundledAuctionEdge!]!
+  "A list of nodes."
+  nodes: [BundledAuction!]!
+  "Information to aid in pagination."
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+"An edge in a connection."
+type BundledAuctionEdge {
+  "A cursor for use in pagination."
+  cursor: String!
+  "The item at the end of the edge."
+  node: BundledAuction
+}
+"A card representing a professional football player"
+type Card implements Node & WithPictureInterface & CardMarketInterface & CardGameInterface & WithSubscriptionsInterface & CollectibleInterface {
+  age: Int
+  belongsToUser: Boolean!
+    @deprecated(reason: "subscriptions do not scale if user dependent")
+  birthTxHash: String
+  blockchain: String!
+  blockchainId: String
+  canBuy: Boolean!
+  canSell: Boolean! @deprecated(reason: "Not optimized")
+  cardEdition: CardEdition
+  cardPrint: CardPrint @deprecated(reason: "Use cardEdition and layout instead")
+  club: Club @deprecated(reason: "replaced by team")
+  createdAt: ISO8601DateTime!
+  currentSeasonBonus: Boolean!
+    @deprecated(reason: "replaced by power breakdown")
+  currentUserSingleBuyOfferMinPrice: SingleBuyOfferMinPrice
+  currentUserSubscription: EmailSubscription
+  gameForFixture(
+    so5FixtureSlug: String = null
+    so5LeaderboardSlug: String = null
+  ): Game @deprecated(reason: "Use `gameForLeague` instead")
+  gameForLeague(
+    so5LeagueSlug: String = null
+    so5LeaderboardSlug: String = null
+  ): Game
+  "Current card level"
+  grade: Int!
+  gradeAfterTransfer: Int!
+  id: ID!
+  inRollup: Boolean!
+  latestAuction: Auction @deprecated(reason: "Use latestEnglishAuction instead")
+  latestEnglishAuction: EnglishAuction
+  layout: CardLayout
+  license: License!
+  liveSingleBuyOffers: [Offer!]!
+  liveSingleSaleOffer: SingleSaleOffer
+  mintedSingleSaleOffer: SingleSaleOffer
+    @deprecated(reason: "Use liveSingleSaleOffer instead")
+  myMintedSingleSaleOffer: SingleSaleOffer
+  name: String!
+  nextVaultId: Int
+  notContractOwners: [OwnerWithRates!]!
+  onSale: Boolean!
+  openAuction: Auction @deprecated(reason: "Use openEnglishAuctions instead")
+  openEnglishAuction: EnglishAuction
+  openForDomesticStats: Boolean!
+  openForGameStats: Boolean!
+  openForGameStatsCompetitions: [Competition!]!
+  owner: Owner
+  ownerSince: ISO8601DateTime
+  ownerWithRates: OwnerWithRates
+  owners: [Owner!]!
+  pendingWithdrawal: StarkwareWithdrawal
+  pictureUrl(derivative: String): String
+  player: Player!
+  playerInjuries: [Injury!]! @deprecated(reason: "injury data not reliable")
+  "The `player_season_picture` field cannot be nested within a list."
+  playerSeasonPicture(type: String): SeasonPicture!
+  position: String!
+  power: String!
+  powerBreakdown: PowerBreakdown!
+  powerMalusAfterTransfer: String!
+  price: String! @deprecated(reason: "not relevant")
+  priceRange: Range
+  publicSingleBuyOfferMinPrice: SingleBuyOfferMinPrice
+  rarity: String!
+  sameClubBonus: Boolean! @deprecated(reason: "replaced by power breakdown")
+  scoreForPreviousFixture(so5FixtureSlug: String!): Int!
+    @deprecated(reason: "use the So5Scores of the player instead")
+  season: Season!
+  serialNumber: Int!
+  shirtNumber: Int
+  singleCivilYear: Boolean!
+  slug: String!
+  starkwareTokenId: String
+  subscriptionsCount: Int!
+  team: Team!
+  "The `team_picture_url` field cannot be nested within a list."
+  teamPictureUrl(derivative: String): String
+  tradeableStatus: Tradeable!
+  u23Eligible: Boolean!
+  user: User
+  userOwner: UserOwner
+  userOwnerWithRate: UserOwnerWithRates
+    @deprecated(reason: "replaced by ownerWithRate")
+  userOwners: [UserOwner!]!
+  userOwnersWithRate: [UserOwnerWithRates!]!
+  vaultId: Int
+  visible: Boolean!
+  walletStatus: WalletStatus!
+  xp: Int!
+  xpAfterTransfer: Int!
+  "XP start range of current card level"
+  xpNeededForCurrentGrade: Int!
+  "XP end range of current card level"
+  xpNeededForNextGrade: Int
+}
+"The connection type for Card."
+type CardConnection {
+  "A list of edges."
+  edges: [CardEdge!]!
+  "A list of nodes."
+  nodes: [Card!]!
+  "Information to aid in pagination."
+  pageInfo: PageInfo!
+}
+"A user card count breakdown"
+type CardCount {
+  common: Int!
+  limited: Int!
+  rare: Int!
+  superRare: Int!
+  total: Int!
+  unique: Int!
+}
+"A card dropped during onboarding"
+type CardDrop {
+  pictureUrl: String!
+  slug: String!
+}
+"An edge in a connection."
+type CardEdge {
+  "A cursor for use in pagination."
+  cursor: String!
+  "The item at the end of the edge."
+  node: Card
+}
+"Represents a card edition"
+type CardEdition implements WithPublicCardsInterface {
+  "The `cards` field cannot be nested within a list."
+  cards(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    age: Int
+    owned: Boolean
+    "positions of the card capitalized"
+    positions: [Position!]
+    "rarities of the card in lowercase"
+    rarities: [Rarity!]
+    serialNumber: Int
+    shirtNumber: Int
+    slugs: [String!]
+  ): CardConnection!
+  displayName: String!
+  name: String!
+}
+"Card Game Interface"
+interface CardGameInterface {
+  gameForLeague(
+    so5LeagueSlug: String = null
+    so5LeaderboardSlug: String = null
+  ): Game
+  "Current card level"
+  grade: Int!
+  gradeAfterTransfer: Int!
+  power: String!
+  powerBreakdown: PowerBreakdown!
+  powerMalusAfterTransfer: String!
+  u23Eligible: Boolean!
+  xp: Int!
+  xpAfterTransfer: Int!
+  "XP start range of current card level"
+  xpNeededForCurrentGrade: Int!
+  "XP end range of current card level"
+  xpNeededForNextGrade: Int
+}
+"Represents a card layout"
+type CardLayout {
+  backgroundUrl: String
+  layerUrl: String
+  playerMaskUrl: String
+  teamLogoUrl: String
+}
+"Card Market Resolvers"
+interface CardMarketInterface {
+  canBuy: Boolean!
+  currentUserSingleBuyOfferMinPrice: SingleBuyOfferMinPrice
+  latestEnglishAuction: EnglishAuction
+  liveSingleBuyOffers: [Offer!]!
+  liveSingleSaleOffer: SingleSaleOffer
+  myMintedSingleSaleOffer: SingleSaleOffer
+  onSale: Boolean!
+  openEnglishAuction: EnglishAuction
+  priceRange: Range
+  publicSingleBuyOfferMinPrice: SingleBuyOfferMinPrice
+}
+"A user notification regarding a Card"
+type CardNotification implements NotificationInterface {
+  card: Card!
+  createdAt: ISO8601DateTime!
+  id: ID!
+  name: String!
+  read: Boolean!
+  user: CurrentUser!
+  withdrawal: StarkwareWithdrawal
+}
+"A CardOffer links a Card to an Offer"
+type CardOffer implements Node {
+  card: Card
+  id: ID!
+  offer: Offer!
+  rarity: String!
+}
+"Represents a print of a card"
+type CardPrint {
+  backgroundUrlByRarity(derivative: String): Json!
+  cardEdition: CardEdition!
+  clubUrl: String
+  id: ID!
+  layoutByRarity: RaritiesCardLayout!
+  maskUrl: String
+}
+enum CardQuality {
+  TIER_0
+  TIER_1
+  TIER_2
+  TIER_3
+  TIER_4
+}
+"The supply of cards for a Player in a Season"
+type CardSeasonSupply {
+  limited: Int!
+  player: Player!
+  rare: Int!
+  season: Season!
+  superRare: Int!
+  unique: Int!
+}
+type Club implements TeamInterface & WithSubscriptionsInterface & Node {
+  activeCompetitions: [Competition!]!
+  "The `active_memberships` field cannot be nested within a list."
+  activeMemberships(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): MembershipConnection!
+  "The `active_players` field cannot be nested within a list."
+  activePlayers(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): PlayerConnection!
+  "The `cards` field cannot be nested within a list."
+  cards(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    age: Int
+    owned: Boolean
+    "positions of the card capitalized"
+    positions: [Position!]
+    "rarities of the card in lowercase"
+    rarities: [Rarity!]
+    serialNumber: Int
+    shirtNumber: Int
+    slugs: [String!]
+  ): CardConnection!
+  code: String
+  colorBottom: String
+    @deprecated(reason: "replaced by colorRight on customBanner")
+  colorTop: String @deprecated(reason: "replaced by colorLeft on customBanner")
+  country: Country!
+  currentUserSubscription: EmailSubscription
+  customBanner: CustomBanner
+  domesticLeague: Competition
+  founded: String
+  "The `games` field cannot be nested within a list."
+  games(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    "Start time (inclusive) of the game."
+    startDate: ISO8601DateTime!
+    "End time (inclusive) of the game."
+    endDate: ISO8601DateTime!
+  ): GameConnection!
+  id: ID!
+  lastFiveGames: [Game!]!
+  "The `latest_games` field cannot be nested within a list."
+  latestGames(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): GameConnection!
+  license: License!
+  name: String!
+  "The `open_auctions` field cannot be nested within a list."
+  openAuctions(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): AuctionConnection!
+  optaId: String
+  pictureSecondaryUrl: String
+  pictureUrl(derivative: String): String
+  pictureUrlByRarity(derivative: String): Json!
+    @deprecated(reason: "Replaced teamPictureUrl on CardType")
+  "The `players` field cannot be nested within a list."
+  players(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): PlayerConnection!
+  ready: Boolean!
+  "The `recent_departures` field cannot be nested within a list."
+  recentDepartures(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): PlayerConnection!
+  slug: String!
+  subscriptionsCount: Int!
+  upcomingGames(first: Int!): [Game]!
+}
+"The connection type for Club."
+type ClubConnection {
+  "A list of edges."
+  edges: [ClubEdge!]!
+  "A list of nodes."
+  nodes: [Club!]!
+  "Information to aid in pagination."
+  pageInfo: PageInfo!
+}
+"An edge in a connection."
+type ClubEdge {
+  "A cursor for use in pagination."
+  cursor: String!
+  "The item at the end of the edge."
+  node: Club
+}
+"Collectible Resolvers"
+interface CollectibleInterface {
+  cardEdition: CardEdition
+  layout: CardLayout
+}
+"A Common Account"
+type CommonAccount {
+  id: ID!
+}
+"A professional football competition"
+type Competition implements WithPictureInterface & Node {
+  "The `clubs` field cannot be nested within a list."
+  clubs(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): ClubConnection!
+  "The `contestants` field cannot be nested within a list."
+  contestants(seasonStartYear: Int!): [Contestant!]!
+  country: Country
+  customBanner: CustomBanner
+  displayName: String!
+  format: CompetitionFormat!
+  id: ID!
+  name: String!
+  openForGameStats: Boolean!
+  pictureUrl(derivative: String): String
+  "The `players_by_last_five_average` field cannot be nested within a list."
+  playersByLastFiveAverage(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): PlayerConnection!
+  released: Boolean!
+  "The `seasons` field cannot be nested within a list."
+  seasons: [Season!]!
+  slug: String!
+  type: CompetitionType!
+}
+enum CompetitionFormat {
+  DOMESTIC_LEAGUE
+  INTERNATIONAL_CUP
+  INTERNATIONAL_SUPER_CUP
+  DOMESTIC_CUP
+  DOMESTIC_SUPER_CUP
+}
+enum CompetitionType {
+  CLUB
+  INTERNATIONAL
+}
+"The frontend config"
+type Config {
+  activateStarkware: Boolean! @deprecated(reason: "Migration completed")
+  algoliaApplicationId: String!
+  algoliaIndexSuffix: String!
+  algoliaSearchApiKey: String!
+  bankAddress: String!
+  cardPowerCap: Float! @deprecated(reason: "Useless")
+  cdnEnabled: Boolean @deprecated(reason: "Always enabled")
+  draftMajorCompetitions: [String!]!
+    @deprecated(reason: "Draft does not exist anymore")
+  ethAssetType: String!
+  ethQuantum: String!
+  ethereumEndpoint: String!
+  ethereumNetworkId: String!
+  ethereumWsEndpoint: String!
+  exchangeRate: ExchangeRate!
+  frontendAssetsHost: String!
+  frontendMinTimestampVersion: String!
+  frontendPort: String!
+  frontendPort5000Tcp: String!
+  frontendPort5000TcpAddr: String!
+  frontendPort5000TcpPort: String!
+  frontendPort5000TcpProto: String!
+  frontendServiceHost: String!
+  frontendServicePort: String!
+  id: ID!
+  landingCards: [String!]! @deprecated(reason: "Replaced by landingTheme")
+  landingClubCount: String!
+  landingClubs: [LandingClub!]!
+  landingTheme: LandingTheme!
+  migratorAddress: String
+  "Fetch teams playing in the upcoming So5 Fixture"
+  nextSo5FixtureTeams: [Team!]!
+  onboardingDraft: OnboardingDraft!
+    @deprecated(reason: "Draft does not exist anymore")
+  powerHourStartDate: ISO8601DateTime
+  relayAddress: String!
+  so5LeaguesAlgoliaFilters: Json!
+  sorareCardsAddress: String!
+  sorareEncryptionKey: String!
+  sorareTokensAddress: String!
+  sponsorAccountAddress: String!
+  starkExchangeAddress: String
+  stripePublicKey: String!
+  transferMarketBanner: TransferMarketBanner
+    @deprecated(reason: "Moved to TransferMarketType")
+  walletUrl: String!
+}
+"A contestant"
+type Contestant {
+  id: ID!
+  matchesDrawn: Int
+  matchesLost: Int
+  matchesPlayed: Int
+  matchesWon: Int
+  points: Int
+  rank: Int
+  team: Team!
+}
+"A smart contract"
+type Contract implements Node {
+  addressHex: String!
+  blockchain: String!
+  id: ID!
+  name: String!
+}
+"A country"
+type Country implements WithSubscriptionsInterface & Node {
+  "Country code in ISO 3166-1 format."
+  code: String!
+  currentUserSubscription: EmailSubscription
+  id: ID!
+  "List of opened auctions from players of this country. The `open_auctions` field cannot be nested within a list."
+  openAuctions(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): AuctionConnection!
+    @deprecated(reason: "Will be removed in the near future")
+  slug: String!
+  subscriptionsCount: Int!
+}
+"Credit Card"
+type CreditCard {
+  brand: CreditCardBrand!
+  expMonth: Int!
+  expYear: Int!
+  last4: String!
+}
+enum CreditCardBrand {
+  "American Express"
+  AMERICAN_EXPRESS
+  "Cartes Bancaires"
+  CARTES_BANCAIRES
+  "Diners Club"
+  DINERS_CLUB
+  "Discover"
+  DISCOVER
+  "JCB"
+  JCB
+  "MasterCard"
+  MASTERCARD
+  "UnionPay"
+  UNION_PAY
+  "Visa"
+  VISA
+  "Unknown"
+  UNKNOWN
+}
+enum Currency {
+  ETH
+  FIAT
+}
+"Current Sorare user"
+type CurrentUser implements PublicUserInfoInterface & UserOffersInterface & UserSocialInterface & WithFavoriteInterface & WithReferralsInterface & WithFastWithdrawal & WithNotifications {
+  accountEntries(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    significant: Boolean
+    startDate: ISO8601DateTime
+    endDate: ISO8601DateTime
+    sortType: SortingOption
+  ): UserAccountEntryConnection!
+  activeMintingQuota: MintingQuota
+  allTimeBestDecks: [Deck!]!
+    @deprecated(reason: "Replaced by allTimeBestDecksInFormation")
+  allTimeBestDecksInFormation: [DeckInFormation!]!
+  apiKey: String
+  "The `auctions` field cannot be nested within a list."
+  auctions(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortByEndDate: SortingOption
+  ): AuctionConnection! @deprecated(reason: "Use englishAuctions instead")
+  "Current user available balance, in wei."
+  availableBalance: String!
+  "Current user available balance for withdrawal, in wei."
+  availableBalanceForWithdrawal: String!
+  awards: [UserAward!]!
+  "Current user bank balance, in wei."
+  bankBalance: String!
+  bankMappedEthereumAddress: String
+  bankMappedEthereumAddressApprovedBank: Boolean
+  betaStarker: Boolean! @deprecated(reason: "Migration completed")
+  betaTester: Boolean!
+  blocked: [User!]! @deprecated(reason: "Replaced by blockedUsers")
+  blockedBy: [User!]! @deprecated(reason: "removed soon")
+  blockedUntil: ISO8601DateTime
+  blockedUsers(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): UserConnection!
+  "The `bought_single_sale_offers` field cannot be nested within a list."
+  boughtSingleSaleOffers(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortByEndDate: SortingOption
+  ): SingleSaleOfferConnection!
+  "The `buying_auctions` field cannot be nested within a list."
+  buyingAuctions(
+    "Returns auctions sorted by `startDate` in descending order when set."
+    newlyListed: Boolean
+  ): [Auction!]! @deprecated(reason: "Use buyingEnglishAuctions instead")
+  "The `buying_english_auctions` field cannot be nested within a list."
+  buyingEnglishAuctions(
+    "Returns auctions sorted by `startDate` in descending order when set."
+    newlyListed: Boolean
+  ): [EnglishAuction!]!
+  cardCounts: CardCount!
+  cards: [Card!]! @deprecated(reason: "Use paginatedCards instead")
+  cardsCount: Int!
+  coinBalance: Int!
+  createdAt: ISO8601DateTime!
+  "The `custom_decks` field cannot be nested within a list."
+  customDecks(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): CustomDeckConnection!
+  depositedEth: Boolean!
+  directOffers(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    direction: OfferDirection!
+    sortType: SortingOption
+  ): OfferConnection!
+  directOffersReceived: [Offer!]!
+    @deprecated(
+      reason: "Prefer using directOffers(direction: RECEIVED) instead."
+    )
+  directOffersSent: [Offer!]!
+    @deprecated(reason: "Prefer using directOffers(direction: SENT) instead.")
+  draftAvailableFunds: Int! @deprecated(reason: "Draft does not exist anymore")
+  email: String!
+  "The `ended_buying_auctions` field cannot be nested within a list."
+  endedBuyingAuctions(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): AuctionConnection!
+    @deprecated(reason: "Use endedBuyingEnglishAuctions instead")
+  endedDirectOffersReceived(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortType: SortingOption
+  ): OfferConnection!
+  endedDirectOffersSent(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortType: SortingOption
+  ): OfferConnection!
+  "The `ended_with_no_buyer_single_sale_offers` field cannot be nested within a list."
+  endedWithNoBuyerSingleSaleOffers(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortByEndDate: SortingOption
+  ): SingleSaleOfferConnection!
+  "The `english_auctions` field cannot be nested within a list."
+  englishAuctions(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortByEndDate: SortingOption
+  ): EnglishAuctionConnection!
+  ethMigration: EthMigration
+  ethVaultId: Int
+  ethereumAddress: String!
+  "Get a starkware conditional transfer request for a fast withdrawal"
+  fastWithdrawal(
+    "Amount to withdraw, in wei."
+    amount: String!
+    "Destination Ethereum address."
+    to: String!
+  ): FastWithdrawal!
+  fastWithdrawals: [FastWithdrawal!]!
+  fastWithdrawalsWithRates: [FastWithdrawalWithRates!]!
+  favoriteCards: [Card!]!
+  favoriteClubs: [Club!]!
+  favoritePlayers: [Player!]!
+  fiatEnabled: Boolean!
+  firstName: String @deprecated(reason: "Not available anymore")
+  followed: EmailSubscription
+  "The `followers` field cannot be nested within a list."
+  followers(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): UserWithSubscriptionSlugConnection!
+  followersCount: Int!
+  "The `following` field cannot be nested within a list."
+  following(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): UserWithSubscriptionSlugConnection!
+  followingCount: Int!
+  fromPath: String
+  frontChatUserHash: String! @deprecated(reason: "Front is not used anymore")
+  highlightedDeck: HighlightedDeck
+  id: ID!
+  "Generate a JWT Token"
+  jwtToken(
+    "Audience claim identifies the intended audience for this token. Consider using a value that uniquely identifies your use case."
+    aud: String!
+  ): JwtToken!
+  lastName: String @deprecated(reason: "Not available anymore")
+  "The `live_single_sale_offers` field cannot be nested within a list."
+  liveSingleSaleOffers(
+    "Returns single sale offers sorted by `startDate` in descending order when set."
+    newlyListed: Boolean
+  ): [SingleSaleOffer!]!
+    @deprecated(reason: "Use the paginated version instead")
+  "The `lost_auctions` field cannot be nested within a list."
+  lostAuctions(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortByEndDate: SortingOption
+  ): AuctionConnection! @deprecated(reason: "Use lostEnglishAuctions instead")
+  "The `lost_english_auctions` field cannot be nested within a list."
+  lostEnglishAuctions(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortByEndDate: SortingOption
+  ): EnglishAuctionConnection!
+  moonpayParams: String!
+  mySubscriptions(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    types: [SubscribableType!]
+    sortType: SortingOption
+  ): EmailSubscriptionConnection!
+  nextStarkwareNonce: Int! @deprecated(reason: "Not available")
+  nickname: String!
+  notifications(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    "Filters notifications by the specified categories when set."
+    categories: [NotificationCategoryInput!]
+  ): NotificationConnection!
+  onboardingStatus: Onboarding!
+  openAuctions: [Auction!]!
+    @deprecated(reason: "Secondary market is offer only")
+  openEnglishAuctions: [EnglishAuction!]!
+    @deprecated(reason: "Secondary market is offer only")
+  otpBackupCodes: [String!]
+  otpProvisioningUri: String!
+  otpRequiredForLogin: Boolean!
+  "The `paginated_cards` field cannot be nested within a list."
+  paginatedCards(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    age: Int
+    owned: Boolean
+    "positions of the card capitalized"
+    positions: [Position!]
+    "rarities of the card in lowercase"
+    rarities: [Rarity!]
+    serialNumber: Int
+    shirtNumber: Int
+    slugs: [String!]
+  ): CardConnection!
+  "The `paginated_live_single_sale_offers` field cannot be nested within a list."
+  paginatedLiveSingleSaleOffers(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortByEndDate: SortingOption
+  ): SingleSaleOfferConnection!
+  paymentMethods: [PaymentMethod!]!
+  pendingDirectOffersReceived(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortType: SortingOption
+  ): OfferConnection!
+  pendingDirectOffersSent(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortType: SortingOption
+  ): OfferConnection!
+  pendingDirectWithdrawalCount: Int!
+  phoneNumber: String
+  phoneNumberVerificationRequested: Boolean!
+  phoneNumberVerified: Boolean!
+  profile: UserProfile!
+  rampSupported: Boolean!
+  referee: Boolean!
+  refereeReward: ReferralReward
+  referralAsReferee: Referral
+  referralRewardsCount: Int!
+  "Get the list of referrals"
+  referrals(
+    "Page to retrieve. Defaults to 0."
+    page: Int
+    "Maximum number of referrals to return. Defaults to 50."
+    pageSize: Int
+    "Filters the returned referrals by `state` when set."
+    state: ReferralState
+  ): ReferralPaginated!
+  referrer: User
+  remainingRookieGameWeeks: Int!
+    @deprecated(reason: "Rookie restrictions are no longer being enforced.")
+  "The `single_sale_offers` field cannot be nested within a list."
+  singleSaleOffers(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortByEndDate: SortingOption
+  ): SingleSaleOfferConnection!
+  slug: String!
+  "The `sold_single_sale_offers` field cannot be nested within a list."
+  soldSingleSaleOffers(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortByEndDate: SortingOption
+  ): SingleSaleOfferConnection!
+  sorareAddress: String
+  sorareAddressApprovedBank: Boolean!
+  sorareAddressApprovedBankPending: String
+  sorarePrivateKey: SorarePrivateKey
+  sorarePrivateKeyRecovery: String
+  starkKey: String
+  starkKeyRegistered: Boolean!
+  starkRegistrationSignature: String
+  subscriptions: [EmailSubscription!]!
+    @deprecated(reason: "Use mySubscriptions instead")
+  "Current user total balance, in wei."
+  totalBalance: String!
+  unclaimedReferralRewardsCount: Int!
+  unclaimedSo5Rewards: [So5Reward!]!
+  unreadNotificationsCount: Int!
+  userSettings: UserSettings!
+  withdrawals: [Withdrawal!]!
+  withdrawalsWithRates: [WithdrawalWithRates!]!
+  "The `won_auctions` field cannot be nested within a list."
+  wonAuctions(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortByEndDate: SortingOption
+  ): AuctionConnection! @deprecated(reason: "Use wonEnglishAuctions instead")
+  "The `won_english_auctions` field cannot be nested within a list."
+  wonEnglishAuctions(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortByEndDate: SortingOption
+  ): EnglishAuctionConnection!
+}
+"A custom banner"
+type CustomBanner {
+  colorLeft: String
+  colorRight: String
+  id: ID!
+}
+"A custom deck"
+type CustomDeck implements DeckInterface {
+  "The `cards` field cannot be nested within a list."
+  cards(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): CardConnection!
+  cardsCount: Int!
+  deckCards(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): DeckCardConnection!
+  deckCardsCount: Int!
+  deckIndex: Int!
+  firstCard: Card
+  id: ID!
+  name: String!
+  slug: String!
+  user: User
+  visible: Boolean!
+}
+"The connection type for CustomDeck."
+type CustomDeckConnection {
+  "A list of edges."
+  edges: [CustomDeckEdge!]!
+  "A list of nodes."
+  nodes: [CustomDeck!]!
+  "Information to aid in pagination."
+  pageInfo: PageInfo!
+}
+"An edge in a connection."
+type CustomDeckEdge {
+  "A cursor for use in pagination."
+  cursor: String!
+  "The item at the end of the edge."
+  node: CustomDeck
+}
+"A Deal (deprecated: Used for our legacy smart contract on Ethereum)"
+type Deal {
+  bankAddress: String!
+  dealId: String!
+  minReceiveAmountInWei: String
+  receiveTokenIds: [String!]
+  receiverAddressHex: String
+  sendAmountInWei: String
+  sendTokenIds: [String!]
+  senderAddressHex: String!
+}
+"A card deck"
+type Deck implements Node {
+  category: DeckCategory!
+  deckCards: [DeckCard!]!
+  formation: DeckFormation!
+  id: ID!
+  pictureUrl: String
+  slug: String!
+  user: User
+}
+"A deck card"
+type DeckCard implements Node {
+  card: Card!
+  cardIndex: Int
+  id: ID!
+  label: String
+}
+"The connection type for DeckCard."
+type DeckCardConnection {
+  "A list of edges."
+  edges: [DeckCardEdge!]!
+  "A list of nodes."
+  nodes: [DeckCard!]!
+  "Information to aid in pagination."
+  pageInfo: PageInfo!
+}
+"An edge in a connection."
+type DeckCardEdge {
+  "A cursor for use in pagination."
+  cursor: String!
+  "The item at the end of the edge."
+  node: DeckCard
+}
+enum DeckCategory {
+  ALL_TIME_BEST
+  USER_FAVORITE
+}
+enum DeckFormation {
+  FREE
+  TWO_ONE_ONE
+  ONE_TWO_ONE
+  ONE_ONE_TWO
+}
+"A card deck with a formation"
+type DeckInFormation implements DeckInterface {
+  "The `cards` field cannot be nested within a list."
+  cards(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): CardConnection!
+  cardsCount: Int!
+  category: DeckCategory!
+  deckCards(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): DeckCardConnection!
+  deckCardsCount: Int!
+  firstCard: Card
+  formation: DeckFormation!
+  id: ID!
+  pictureUrl: String
+  slug: String!
+  user: User
+}
+interface DeckInterface {
+  "The `cards` field cannot be nested within a list."
+  cards(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): CardConnection!
+  cardsCount: Int!
+  deckCards(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): DeckCardConnection!
+  deckCardsCount: Int!
+  firstCard: Card
+  id: ID!
+  slug: String!
+  user: User
+}
+"A subscription to a Card/Club/Player/Country/User"
+type EmailSubscription {
+  id: ID!
+  preferences: EmailSubscriptionPreferences!
+  slug: String!
+  subscribable: Subscribable
+  subscriber: Subscriber
+  updatedAt: ISO8601DateTime!
+}
+"The connection type for EmailSubscription."
+type EmailSubscriptionConnection {
+  "A list of edges."
+  edges: [EmailSubscriptionEdge!]!
+  "A list of nodes."
+  nodes: [EmailSubscription!]!
+  "Information to aid in pagination."
+  pageInfo: PageInfo!
+}
+"An edge in a connection."
+type EmailSubscriptionEdge {
+  "A cursor for use in pagination."
+  cursor: String!
+  "The item at the end of the edge."
+  node: EmailSubscription
+}
+"A subscription preferences"
+type EmailSubscriptionPreferences {
+  notifyForRarities: [String!]!
+  slug: String!
+}
+"An EnglishAuction on a bundle of Cards"
+type EnglishAuction implements EnglishAuctionInterface & Node {
+  belongsToUser: Boolean!
+    @deprecated(reason: "subscriptions do not scale if user dependent")
+  bestBid: BidWithRates
+  bestBidBelongsToUser: Boolean!
+    @deprecated(reason: "subscriptions do not scale if user dependent")
+  "The `bids` field cannot be nested within a list."
+  bids(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): BidConnection!
+  bidsCount: Int!
+  blockchainId: String!
+  cancelled: Boolean!
+  cards: [Card!]!
+  contentProvider: EnglishAuctionContentProvider
+  contract: Contract!
+  creditCardFee: Float!
+  "Current price, in wei."
+  currentPrice: String!
+  deal: Deal! @deprecated(reason: "Use limitOrders instead")
+  endDate: ISO8601DateTime!
+  "ID of the object."
+  id: ID!
+  "List of LimitOrder objects used as a payload to sign for the `bid` mutation."
+  limitOrders(
+    "Bid amount included in the LimitOrder payload."
+    amount: String!
+  ): [LimitOrder!]
+  "Minimum next bid amount, in wei."
+  minNextBid: String!
+  minSignatureExpirationDate: ISO8601DateTime!
+  name: String!
+  number: Int! @deprecated(reason: "Use blockchainId as unique identifier")
+  open: Boolean!
+  slug: String!
+  startDate: ISO8601DateTime!
+}
+"The connection type for EnglishAuction."
+type EnglishAuctionConnection {
+  "A list of edges."
+  edges: [EnglishAuctionEdge!]!
+  "A list of nodes."
+  nodes: [EnglishAuction!]!
+  "Information to aid in pagination."
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+"Object that can be an EnglishAuction content provider"
+union EnglishAuctionContentProvider = Club | Competition | NationalTeam
+"An edge in a connection."
+type EnglishAuctionEdge {
+  "A cursor for use in pagination."
+  cursor: String!
+  "The item at the end of the edge."
+  node: EnglishAuction
+}
+interface EnglishAuctionInterface {
+  belongsToUser: Boolean!
+    @deprecated(reason: "subscriptions do not scale if user dependent")
+  bestBid: BidWithRates
+  bestBidBelongsToUser: Boolean!
+    @deprecated(reason: "subscriptions do not scale if user dependent")
+  "The `bids` field cannot be nested within a list."
+  bids(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): BidConnection!
+  bidsCount: Int!
+  blockchainId: String!
+  cancelled: Boolean!
+  cards: [Card!]!
+  contentProvider: EnglishAuctionContentProvider
+  contract: Contract!
+  creditCardFee: Float!
+  "Current price, in wei."
+  currentPrice: String!
+  deal: Deal! @deprecated(reason: "Use limitOrders instead")
+  endDate: ISO8601DateTime!
+  id: ID!
+  "List of LimitOrder objects used as a payload to sign for the `bid` mutation."
+  limitOrders(
+    "Bid amount included in the LimitOrder payload."
+    amount: String!
+  ): [LimitOrder!]
+  "Minimum next bid amount, in wei."
+  minNextBid: String!
+  minSignatureExpirationDate: ISO8601DateTime!
+  name: String!
+  number: Int! @deprecated(reason: "Use blockchainId as unique identifier")
+  open: Boolean!
+  slug: String!
+  startDate: ISO8601DateTime!
+}
+"A withdrawal signature"
+type EthBankWithdrawalIntent {
+  amount: String!
+  nonce: Int!
+  signature: String!
+  user: CurrentUser!
+}
+"An ETH migration"
+type EthMigration {
+  aasmState: String!
+  id: ID!
+  nonce: String!
+  weiAmount: String!
+}
+"An Ethereum Account"
+type EthereumAccount {
+  address: String!
+  id: ID!
+}
+"An Ethereum Transaction"
+type EthereumTransaction {
+  confirmedAt: ISO8601DateTime!
+  id: ID!
+  status: TransactionStatus
+  transactionHash: String!
+}
+"A ETH/EUR exchange rate"
+type ExchangeRate {
+  id: ID!
+  rates: Json!
+  time: ISO8601DateTime!
+}
+"A landmark as detected on a Player picture by face recognition"
+type FaceLandmark {
+  type: String!
+  x: Float!
+  xInPx: Float!
+  y: Float!
+  yInPx: Float!
+}
+"The starkware fast withdrawal as a ConditionalTransferRequest"
+type FastWithdrawal {
+  amount: String!
+  condition: String!
+  createdAt: ISO8601DateTime!
+  expirationTimestamp: Int!
+  id: ID!
+  nonce: Int!
+  receiverPublicKey: String!
+  receiverVaultId: Int!
+  salt: String!
+  senderVaultId: Int!
+  status: WithdrawalStatus!
+  to: String!
+  token: String!
+  transactionHash: String
+}
+"The starkware fast withdrawal with rates as a ConditionalTransferRequest"
+type FastWithdrawalWithRates {
+  amount: String!
+  amountInFiat: Fiat!
+  condition: String!
+  createdAt: ISO8601DateTime!
+  expirationTimestamp: Int!
+  id: ID!
+  nonce: Int!
+  receiverPublicKey: String!
+  receiverVaultId: Int!
+  salt: String!
+  senderVaultId: Int!
+  status: WithdrawalStatus!
+  to: String!
+  token: String!
+  transactionHash: String
+}
+"Starkware fee representation"
+type Fee {
+  feeLimit: String!
+  sourceVaultId: Int!
+  tokenId: String!
+}
+type Fiat {
+  eur: Float!
+  gbp: Float!
+  usd: Float!
+}
+enum FiatCurrency {
+  EUR
+  USD
+  GBP
+}
+"action_dispatch_uploaded_file"
+scalar File
+"Represents signed double-precision fractional values as specified by [IEEE 754](https://en.wikipedia.org/wiki/IEEE_floating_point)."
+scalar Float
+"The starkware Full withdrawal"
+type FullWithdrawalRequest {
+  id: ID!
+  served: Boolean!
+  valid: Boolean!
+}
+"A professional football game"
+type Game implements Node {
+  away: Club @deprecated(reason: "Replaced by awayTeam")
+  awayGoals: Int
+  awayTeam: Team
+  competition: Competition!
+  date: ISO8601DateTime!
+  home: Club @deprecated(reason: "Replaced by homeTeam")
+  homeGoals: Int!
+  homeTeam: Team
+  id: ID!
+  lowCoverage: Boolean!
+  minute: Int!
+  scored: Boolean!
+  so5Fixture: So5Fixture
+  status: String!
+}
+"The connection type for Game."
+type GameConnection {
+  "A list of edges."
+  edges: [GameEdge!]!
+  "A list of nodes."
+  nodes: [Game!]!
+  "Information to aid in pagination."
+  pageInfo: PageInfo!
+}
+"An edge in a connection."
+type GameEdge {
+  "A cursor for use in pagination."
+  cursor: String!
+  "The item at the end of the edge."
+  node: Game
+}
+"A highlighted deck"
+type HighlightedDeck implements DeckInterface {
+  "The `cards` field cannot be nested within a list."
+  cards(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): CardConnection!
+  cardsCount: Int!
+  deckCards(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): DeckCardConnection!
+  deckCardsCount: Int!
+  firstCard: Card
+  id: ID!
+  slug: String!
+  user: User
+}
+"An ISO 8601-encoded date"
+scalar ISO8601Date
+"An ISO 8601-encoded datetime"
+scalar ISO8601DateTime
+"A player injury"
+type Injury {
+  active: Boolean!
+  expectedEndDate: ISO8601DateTime
+  id: ID!
+  kind: String!
+  startDate: ISO8601DateTime!
+}
+scalar Json
+"Represents a jwt token"
+type JwtToken {
+  "JWT token expiration time."
+  expiredAt: ISO8601DateTime!
+  "JWT token, usable through a `Authorization: Bearer <token>` HTTP header."
+  token: String!
+}
+"A club on the landing page"
+type LandingClub {
+  league: String!
+  logo: String!
+  name: String!
+}
+"A landing theme"
+type LandingTheme {
+  cards: [String!]!
+  id: ID!
+  slug: String!
+  subtitle: String
+  userSource: UserSource
+}
+enum License {
+  NOT_LICENSED
+  PLAYERS_AND_CLUB
+  PLAYERS_ONLY
+  CLUB_ONLY
+}
+"The limit order representation of one side of a Deal (Auction or Offer)"
+type LimitOrder {
+  amountBuy: String!
+  amountSell: String!
+  expirationTimestamp: Int!
+  id: String!
+  nonce: Int!
+  tokenBuy: String!
+  tokenSell: String!
+  vaultIdBuy: Int!
+  vaultIdSell: Int!
+}
+"A Loom Account"
+type LoomAccount {
+  address: String!
+  id: ID!
+}
+"An object representing a club for which a player has played during a certain time."
+type Membership implements Node {
+  aggregatedStats: Stats!
+  club: Club
+  endDate: ISO8601DateTime
+  id: ID!
+  membershipTeam: Team!
+  player: Player!
+  startDate: ISO8601DateTime!
+  stats: [Stats!]!
+  team: Club @deprecated(reason: "Replaced by membershipTeam")
+}
+"The connection type for Membership."
+type MembershipConnection {
+  "A list of edges."
+  edges: [MembershipEdge!]!
+  "A list of nodes."
+  nodes: [Membership!]!
+  "Information to aid in pagination."
+  pageInfo: PageInfo!
+}
+"An edge in a connection."
+type MembershipEdge {
+  "A cursor for use in pagination."
+  cursor: String!
+  "The item at the end of the edge."
+  node: Membership
+}
+"An intent to mint cards for other users"
+input MintCardsForUsersInput {
+  "The slug of the player that should be on the Card. Either that or the tier of the player must be given."
+  playerSlug: String
+  "The tier of the player that should be on the Card. Either that or the slug of the player must be given."
+  tier: CardQuality
+  "The slug of the user that will receive the Card."
+  userSlug: String!
+  "The rarity of the Card."
+  rarity: Rarity!
+}
+"Represents a quota of Cards that can be minted on demand by a User"
+type MintingQuota {
+  allocated(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): MintingQuotaAllocationConnection!
+  endDate: ISO8601DateTime!
+  id: ID!
+  playerPool: PlayerPool
+  startDate: ISO8601DateTime!
+  units: [MintingQuotaUnit!]!
+  user: User!
+}
+"Represents a quota of Cards of a certain tiers and rarity that can be minted on demand by a User"
+type MintingQuotaAllocation implements Node {
+  card: Card!
+  id: ID!
+  tier: Int!
+  user: User!
+}
+"The connection type for MintingQuotaAllocation."
+type MintingQuotaAllocationConnection {
+  "A list of edges."
+  edges: [MintingQuotaAllocationEdge!]!
+  "A list of nodes."
+  nodes: [MintingQuotaAllocation!]!
+  "Information to aid in pagination."
+  pageInfo: PageInfo!
+}
+"An edge in a connection."
+type MintingQuotaAllocationEdge {
+  "A cursor for use in pagination."
+  cursor: String!
+  "The item at the end of the edge."
+  node: MintingQuotaAllocation
+}
+"Represents a quota of Cards of a certain tier and rarity that can be minted on demand by a User"
+type MintingQuotaUnit {
+  allocations(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): MintingQuotaAllocationConnection!
+  id: ID!
+  mintingQuota: MintingQuota!
+  quantity: Int!
+  rarity: Rarity!
+  remaining: Int!
+  tier: CardQuality
+}
+type Mutation {
+  "Accept an offer"
+  acceptOffer(
+    "Parameters for acceptOffer"
+    input: acceptOfferInput!
+  ): acceptOfferPayload
+  "Allows a user to add cards to a Deck."
+  addCardsToDeck(
+    "Parameters for addCardsToDeck"
+    input: addCardsToDeckInput!
+  ): addCardsToDeckPayload
+  "Add favourite clubs during the onboarding process"
+  addFavouriteClubs(
+    "Parameters for addFavouriteClubs"
+    input: addFavouriteClubsInput!
+  ): addFavouriteClubsPayload
+  "Approve Migrator contract"
+  approveMigrator(
+    "Parameters for approveMigrator"
+    input: approveMigratorInput!
+  ): approveMigratorPayload
+  "Bid on an auction"
+  bid("Parameters for bid" input: bidInput!): bidPayload
+  "Block another user from sending offers"
+  blockUserOffers(
+    "Parameters for blockUserOffers"
+    input: blockUserOffersInput!
+  ): blockUserOffersPayload
+  "Buy a skin for your club"
+  buySkin("Parameters for buySkin" input: buySkinInput!): buySkinPayload
+  cancelEthBankWithdrawals(
+    "Parameters for cancelEthBankWithdrawals"
+    input: cancelEthBankWithdrawalsInput!
+  ): cancelEthBankWithdrawalsPayload
+  cancelFastWithdrawal(
+    "Parameters for cancelFastWithdrawal"
+    input: cancelFastWithdrawalInput!
+  ): cancelFastWithdrawalPayload
+  "Cancel an offer"
+  cancelOffer(
+    "Parameters for cancelOffer"
+    input: cancelOfferInput!
+  ): cancelOfferPayload
+  cancelWithdrawal(
+    "Parameters for cancelWithdrawal"
+    input: cancelWithdrawalInput!
+  ): cancelWithdrawalPayload
+  "Check phone number verification code"
+  checkPhoneNumberVerificationCode(
+    "Parameters for checkPhoneNumberVerificationCode"
+    input: checkPhoneNumberVerificationCodeInput!
+  ): checkPhoneNumberVerificationCodePayload
+  "Claim an award"
+  claimAward(
+    "Parameters for claimAward"
+    input: claimAwardInput!
+  ): claimAwardPayload
+  "Allows a user to claim a card drop"
+  claimCardDrop(
+    "Parameters for claimCardDrop"
+    input: claimCardDropInput!
+  ): claimCardDropPayload
+  "Claim a referral reward"
+  claimReferralReward(
+    "Parameters for claimReferralReward"
+    input: claimReferralRewardInput!
+  ): claimReferralRewardPayload
+  "Claim a reward"
+  claimReward(
+    "Parameters for claimReward"
+    input: claimRewardInput!
+  ): claimRewardPayload
+  "Allows a user to mark an onboarding task as complete"
+  completeOnboardingTask(
+    "Parameters for completeOnboardingTask"
+    input: completeOnboardingTaskInput!
+  ): completeOnboardingTaskPayload
+  "Confirms user Lineups"
+  confirmSo5Lineups(
+    "Parameters for confirmSo5Lineups"
+    input: confirmSo5LineupsInput!
+  ): confirmSo5LineupsPayload
+  "Withdraw a card to Ethereum"
+  createCardWithdrawal(
+    "Parameters for createCardWithdrawal"
+    input: createCardWithdrawalInput!
+  ): createCardWithdrawalPayload
+  "Allows a user to create a custom deck."
+  createCustomDeck(
+    "Parameters for createCustomDeck"
+    input: createCustomDeckInput!
+  ): createCustomDeckPayload
+  "Send a Direct Offer to another manager"
+  createDirectOffer(
+    "Parameters for createDirectOffer"
+    input: createDirectOfferInput!
+  ): createDirectOfferPayload
+  createEthBankWithdrawalIntent(
+    "Parameters for createEthBankWithdrawalIntent"
+    input: createEthBankWithdrawalIntentInput!
+  ): createEthBankWithdrawalIntentPayload
+  "Creates an ETH migration"
+  createEthMigration(
+    "Parameters for createEthMigration"
+    input: createEthMigrationInput!
+  ): createEthMigrationPayload
+  "Creates an eth vault"
+  createEthVault(
+    "Parameters for createEthVault"
+    input: createEthVaultInput!
+  ): createEthVaultPayload
+  createFastWithdrawal(
+    "Parameters for createFastWithdrawal"
+    input: createFastWithdrawalInput!
+  ): createFastWithdrawalPayload
+  "Fix a minimum price for a card"
+  createOrUpdateSingleBuyOfferMinPrice(
+    "Parameters for createOrUpdateSingleBuyOfferMinPrice"
+    input: createOrUpdateSingleBuyOfferMinPriceInput!
+  ): createOrUpdateSingleBuyOfferMinPricePayload
+  "Create or update a user Lineup"
+  createOrUpdateSo5Lineup(
+    "Parameters for createOrUpdateSo5Lineup"
+    input: createOrUpdateSo5LineupInput!
+  ): createOrUpdateSo5LineupPayload
+  "Create a payment intent"
+  createPaymentIntent(
+    "Parameters for createPaymentIntent"
+    input: createPaymentIntentInput!
+  ): createPaymentIntentPayload
+  "Offer to buy a single card for a fixed price"
+  createSingleBuyOffer(
+    "Parameters for createSingleBuyOffer"
+    input: createSingleBuyOfferInput!
+  ): createSingleBuyOfferPayload
+  "Sell a single card for a fixed price"
+  createSingleSaleOffer(
+    "Parameters for createSingleSaleOffer"
+    input: createSingleSaleOfferInput!
+  ): createSingleSaleOfferPayload
+  "Subscribe to new auctions on a Card, a Player, a Club or a Country"
+  createSubscription(
+    "Parameters for createSubscription"
+    input: createSubscriptionInput!
+  ): createSubscriptionPayload
+  createWithdrawal(
+    "Parameters for createWithdrawal"
+    input: createWithdrawalInput!
+  ): createWithdrawalPayload
+  "Allows a user to delete a custom deck."
+  deleteCustomDeck(
+    "Parameters for deleteCustomDeck"
+    input: deleteCustomDeckInput!
+  ): deleteCustomDeckPayload
+  "Deletes a user Lineup"
+  deleteSo5Lineup(
+    "Parameters for deleteSo5Lineup"
+    input: deleteSo5LineupInput!
+  ): deleteSo5LineupPayload
+  "Delete a subscription to new auctions on a Card, a Player, a Club or a Country"
+  deleteSubscription(
+    "Parameters for deleteSubscription"
+    input: deleteSubscriptionInput!
+  ): deleteSubscriptionPayload
+  "Deletes user Lineups by leagues"
+  deleteUserSo5Lineups(
+    "Parameters for deleteUserSo5Lineups"
+    input: deleteUserSo5LineupsInput!
+  ): deleteUserSo5LineupsPayload
+  "Destroy my Sorare account"
+  destroyAccount(
+    "Parameters for destroyAccount"
+    input: destroyAccountInput!
+  ): destroyAccountPayload
+  "Destroy an expired referral"
+  destroyReferral(
+    "Parameters for destroyReferral"
+    input: destroyReferralInput!
+  ): destroyReferralPayload
+  detachPaymentMethod(
+    "Parameters for detachPaymentMethod"
+    input: detachPaymentMethodInput!
+  ): detachPaymentMethodPayload
+  "Disable 2FA requirement for login"
+  disable2Fa(
+    "Parameters for disable2fa"
+    input: disable2faInput!
+  ): disable2faPayload
+  "Disconnect from a social auth"
+  disconnectOmniauthProvider(
+    "Parameters for disconnectOmniauthProvider"
+    input: disconnectOmniauthProviderInput!
+  ): disconnectOmniauthProviderPayload
+  "Draft a team of free common cards to start playing"
+  draftCommonTeam(
+    "Parameters for draftCommonTeam"
+    input: draftCommonTeamInput!
+  ): draftCommonTeamPayload
+  "Allows a user to edit a card position in a Deck."
+  editCardInDeck(
+    "Parameters for editCardInDeck"
+    input: editCardInDeckInput!
+  ): editCardInDeckPayload
+  "Allows a user to edit a custom deck."
+  editCustomDeck(
+    "Parameters for editCustomDeck"
+    input: editCustomDeckInput!
+  ): editCustomDeckPayload
+  "Enable 2FA requirement for login"
+  enable2Fa("Parameters for enable2fa" input: enable2faInput!): enable2faPayload
+  "Generate OTP backup codes"
+  generateOtpBackupCodes(
+    "Parameters for generateOtpBackupCodes"
+    input: generateOtpBackupCodesInput!
+  ): generateOtpBackupCodesPayload
+  "Mark notifications as read"
+  markNotificationsAsRead(
+    "Parameters for markNotificationsAsRead"
+    input: markNotificationsAsReadInput!
+  ): markNotificationsAsReadPayload
+  "Mint Cards for other users"
+  mintCardsForUsers(
+    "Parameters for mintCardsForUsers"
+    input: mintCardsForUsersInput!
+  ): mintCardsForUsersPayload
+  "Get the limit orders that need to be signed in order to accept an offer"
+  prepareAcceptOffer(
+    "Parameters for prepareAcceptOffer"
+    input: prepareAcceptOfferInput!
+  ): prepareAcceptOfferPayload
+  "Get transfer request that needs to be signed in order to withdraw a card"
+  prepareCardWithdrawal(
+    "Parameters for prepareCardWithdrawal"
+    input: prepareCardWithdrawalInput!
+  ): prepareCardWithdrawalPayload
+  "Get the limit orders that need to be signed in order to be able to create an offer"
+  prepareOffer(
+    "Parameters for prepareOffer"
+    input: prepareOfferInput!
+  ): prepareOfferPayload
+  "Reject an Offer"
+  rejectOffer(
+    "Parameters for rejectOffer"
+    input: rejectOfferInput!
+  ): rejectOfferPayload
+  relayCall("Parameters for relayCall" input: relayCallInput!): relayCallPayload
+  "Allows a user to remove a card from a deck."
+  removeCardFromDeck(
+    "Parameters for removeCardFromDeck"
+    input: removeCardFromDeckInput!
+  ): removeCardFromDeckPayload
+  "Resets a draft by deleting all free common cards"
+  resetCommonDraft(
+    "Parameters for resetCommonDraft"
+    input: resetCommonDraftInput!
+  ): resetCommonDraftPayload
+  resetPrivateKey(
+    "Parameters for resetPrivateKey"
+    input: resetPrivateKeyInput!
+  ): resetPrivateKeyPayload
+  "Allows a user to restart a skipped onboarding process"
+  resumeOnboarding(
+    "Parameters for resumeOnboarding"
+    input: resumeOnboardingInput!
+  ): resumeOnboardingPayload
+  "Add or update the given device token for push notifications"
+  setDeviceToken(
+    "Parameters for setDeviceToken"
+    input: setDeviceTokenInput!
+  ): setDeviceTokenPayload
+  "Sign in"
+  signIn("Parameters for signIn" input: signInInput!): signInPayload
+  "Sign up"
+  signUp("Parameters for signUp" input: signUpInput!): signUpPayload
+  "Allows a user to skip his onboarding process"
+  skipOnboarding(
+    "Parameters for skipOnboarding"
+    input: skipOnboardingInput!
+  ): skipOnboardingPayload
+  "Unblock another user from sending offers"
+  unblockUserOffers(
+    "Parameters for unblockUserOffers"
+    input: unblockUserOffersInput!
+  ): unblockUserOffersPayload
+  "Update a subscription notification preferences"
+  updateSubscription(
+    "Parameters for updateSubscription"
+    input: updateSubscriptionInput!
+  ): updateSubscriptionPayload
+  "Update user profile"
+  updateUserProfile(
+    "Parameters for updateUserProfile"
+    input: updateUserProfileInput!
+  ): updateUserProfilePayload
+  "Update user settings"
+  updateUserSettings(
+    "Parameters for updateUserSettings"
+    input: updateUserSettingsInput!
+  ): updateUserSettingsPayload
+  "Verify phone number"
+  verifyPhoneNumber(
+    "Parameters for verifyPhoneNumber"
+    input: verifyPhoneNumberInput!
+  ): verifyPhoneNumberPayload
+}
+type NationalTeam implements TeamInterface & WithSubscriptionsInterface & WithPictureInterface & Node {
+  activeCompetitions: [Competition!]!
+  "The `active_memberships` field cannot be nested within a list."
+  activeMemberships(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): MembershipConnection!
+  "The `active_players` field cannot be nested within a list."
+  activePlayers(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): PlayerConnection!
+  "The `cards` field cannot be nested within a list."
+  cards(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    age: Int
+    owned: Boolean
+    "positions of the card capitalized"
+    positions: [Position!]
+    "rarities of the card in lowercase"
+    rarities: [Rarity!]
+    serialNumber: Int
+    shirtNumber: Int
+    slugs: [String!]
+  ): CardConnection!
+  code: String
+  colorBottom: String
+    @deprecated(reason: "replaced by colorRight on customBanner")
+  colorTop: String @deprecated(reason: "replaced by colorLeft on customBanner")
+  country: Country!
+  currentUserSubscription: EmailSubscription
+  customBanner: CustomBanner
+  founded: String
+  "The `games` field cannot be nested within a list."
+  games(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    "Start time (inclusive) of the game."
+    startDate: ISO8601DateTime!
+    "End time (inclusive) of the game."
+    endDate: ISO8601DateTime!
+  ): GameConnection!
+  id: ID!
+  internationalCompetition: Competition
+  lastFiveGames: [Game!]!
+  "The `latest_games` field cannot be nested within a list."
+  latestGames(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): GameConnection!
+  license: License!
+  name: String!
+  "The `open_auctions` field cannot be nested within a list."
+  openAuctions(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): AuctionConnection!
+  optaId: String
+  pictureSecondaryUrl: String
+  pictureUrl(derivative: String): String
+  pictureUrlByRarity(derivative: String): Json!
+    @deprecated(reason: "Replaced teamPictureUrl on CardType")
+  "The `players` field cannot be nested within a list."
+  players(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): PlayerConnection!
+  ready: Boolean!
+  "The `recent_departures` field cannot be nested within a list."
+  recentDepartures(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): PlayerConnection!
+  slug: String!
+  subscriptionsCount: Int!
+  upcomingGames(first: Int!): [Game]!
+}
+"An object with an ID."
+interface Node {
+  "ID of the object."
+  id: ID!
+}
+"User notification"
+union Notification =
+    AnnouncementNotification
+  | AuctionNotification
+  | CardNotification
+  | OfferNotification
+  | ReferralRewardNotification
+  | SaleNotification
+  | So5LineupNotification
+  | UserAwardNotification
+"A notification filter"
+input NotificationCategoryInput {
+  type: String!
+  name: String!
+}
+"The connection type for Notification."
+type NotificationConnection {
+  "A list of edges."
+  edges: [NotificationEdge]
+  "A list of nodes."
+  nodes: [Notification]
+  "Information to aid in pagination."
+  pageInfo: PageInfo!
+}
+"An edge in a connection."
+type NotificationEdge {
+  "A cursor for use in pagination."
+  cursor: String!
+  "The item at the end of the edge."
+  node: Notification
+}
+"User Notification"
+interface NotificationInterface {
+  createdAt: ISO8601DateTime!
+  id: ID!
+  name: String!
+  read: Boolean!
+  user: CurrentUser!
+}
+"A Sorare user notification preference"
+type NotificationPreference {
+  defaultValue: Json!
+  id: ID!
+  name: String!
+  value: Json
+  values: [Json!]!
+}
+"A notification preference"
+input NotificationPreferenceInput {
+  name: String!
+  value: Json!
+}
+"An OAuth application"
+type OAuthApplication implements WithPictureInterface {
+  name: String!
+  pictureUrl(derivative: String): String
+  scopes: String
+}
+"An Offer"
+type Offer implements Node & OfferInterface {
+  aasmState: String!
+  acceptedAt: ISO8601DateTime
+  blockchainId: String
+  cancelledAt: ISO8601DateTime
+  contract: Contract
+  createdAt: ISO8601DateTime!
+  creditCardFee: Float!
+  deal: Deal
+  endDate: ISO8601DateTime!
+  ethereumTransaction: EthereumTransaction
+  id: ID!
+  minSignatureExpirationDate: ISO8601DateTime!
+  mintedAt: ISO8601DateTime
+    @deprecated(reason: "Prefer using createdAt instead.")
+  receiveCardOffers: [CardOffer!]!
+  receiveWeiAmount: String
+  "Receive Amount in fiat currencies. Not broadcastable for performance reasons."
+  receiveWeiAmountInFiat: Fiat
+  receiver: Ownerable
+  "List of LimitOrder objects used as payload to sign for the `acceptOffer` mutation."
+  receiverLimitOrders: [LimitOrder!]
+    @deprecated(reason: "Use the `prepareAcceptOffer` mutation")
+  sendCardOffers: [CardOffer!]!
+  sendWeiAmount: String
+  "Send Amount in fiat currencies. Not broadcastable for performance reasons."
+  sendWeiAmountInFiat: Fiat
+  sender: Ownerable!
+  startDate: ISO8601DateTime!
+}
+"The connection type for Offer."
+type OfferConnection {
+  "A list of edges."
+  edges: [OfferEdge!]!
+  "A list of nodes."
+  nodes: [Offer!]!
+  "Information to aid in pagination."
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+enum OfferDirection {
+  SENT
+  RECEIVED
+}
+"An edge in a connection."
+type OfferEdge {
+  "A cursor for use in pagination."
+  cursor: String!
+  "The item at the end of the edge."
+  node: Offer
+}
+"An Offer"
+interface OfferInterface {
+  aasmState: String!
+  acceptedAt: ISO8601DateTime
+  blockchainId: String
+  cancelledAt: ISO8601DateTime
+  contract: Contract
+  createdAt: ISO8601DateTime!
+  creditCardFee: Float!
+  deal: Deal
+  endDate: ISO8601DateTime!
+  ethereumTransaction: EthereumTransaction
+  id: ID!
+  minSignatureExpirationDate: ISO8601DateTime!
+  mintedAt: ISO8601DateTime
+    @deprecated(reason: "Prefer using createdAt instead.")
+  "List of LimitOrder objects used as payload to sign for the `acceptOffer` mutation."
+  receiverLimitOrders: [LimitOrder!]
+    @deprecated(reason: "Use the `prepareAcceptOffer` mutation")
+  sender: Ownerable!
+  startDate: ISO8601DateTime!
+}
+"An object including all arguments to migrate an offer"
+input OfferMigrationInput {
+  migrateInternalCardsSignature: String
+  migrateMappedCardsSignature: String
+  expirationBlock: Int!
+}
+"A user notification regarding an Offer"
+type OfferNotification implements NotificationInterface {
+  createdAt: ISO8601DateTime!
+  id: ID!
+  name: String!
+  offer: Offer!
+  read: Boolean!
+  user: CurrentUser!
+}
+enum OfferType {
+  SINGLE_SALE_OFFER
+  SINGLE_BUY_OFFER
+  DIRECT_OFFER
+}
+"An object representing the state of a user onboarding"
+type Onboarding {
+  enabled: Boolean!
+  id: ID!
+  skipped: Boolean!
+  tasks: [OnboardingTask!]!
+}
+"Onboarding draft configuration"
+type OnboardingDraft {
+  minimumPlayerByPosition: Int!
+  redraftCampaign: String
+  rosterSize: Int!
+}
+"An object representing the state of a task in the user onboarding"
+type OnboardingTask {
+  cardDrop: [Card!] @deprecated(reason: "Replaced by drop")
+  drop: [CardDrop!]
+  forced: Boolean!
+  id: ID!
+  name: OnboardingTaskEnum!
+  state: OnboardingTaskState!
+}
+enum OnboardingTaskEnum {
+  ADD_FAVOURITE_CLUBS
+  JOIN_ROOKIE
+  COMPOSE_TEAM
+  FOLLOW_PLAYER
+  PLACE_FIRST_BID
+}
+enum OnboardingTaskState {
+  TODO
+  TO_CLAIM
+  DONE
+}
+"A list of best So5Score by position"
+type OrderedSo5Scores {
+  position: String!
+  so5Scores: [So5Score!]!
+}
+"An object representing the past or present ownership of a card by a user or a contract"
+type Owner implements OwnerInterface {
+  account: Account
+  address: String!
+  blockchain: String!
+  card: Card!
+  "The deal id that created this owner in case it comes from an offer"
+  dealId: String
+  from: ISO8601DateTime!
+  id: ID!
+  migratorApproval: Boolean!
+  optimistic: Boolean!
+  ownerable: Ownerable
+  "Card price, in wei."
+  price: String!
+  transferType: String!
+  userNonce: Int
+}
+"Card owner (contract or user)"
+interface OwnerInterface {
+  account: Account
+  address: String!
+  blockchain: String!
+  card: Card!
+  "The deal id that created this owner in case it comes from an offer"
+  dealId: String
+  from: ISO8601DateTime!
+  id: ID!
+  migratorApproval: Boolean!
+  optimistic: Boolean!
+  "Card price, in wei."
+  price: String!
+  transferType: String!
+  userNonce: Int
+}
+"An owner with conversion rates"
+type OwnerWithRates implements OwnerInterface {
+  account: Account
+  address: String!
+  blockchain: String!
+  card: Card!
+  "The deal id that created this owner in case it comes from an offer"
+  dealId: String
+  from: ISO8601DateTime!
+  id: ID!
+  migratorApproval: Boolean!
+  optimistic: Boolean!
+  ownerable: Ownerable
+  "Card price, in wei."
+  price: String!
+  priceInFiat: Fiat!
+  transferType: String!
+  userNonce: Int
+}
+"Object that can be an owner"
+union Ownerable = AnonymousUser | Contract | User
+"A pack of cards"
+type Pack implements Node {
+  blockchainId: String!
+  blockedByUser: Boolean!
+  boughtByUser: Boolean!
+  cards: [Card!]!
+  category: String!
+  contract: Contract!
+  cutOff: ISO8601DateTime!
+  deadline: ISO8601DateTime!
+  id: ID!
+  priceInEuroCents: String!
+  priceInWei: String!
+  serial: Int!
+  slug: String!
+  sold: Boolean!
+}
+"Information about pagination in a connection."
+type PageInfo {
+  "When paginating forwards, the cursor to continue."
+  endCursor: String
+  "When paginating forwards, are there more items?"
+  hasNextPage: Boolean!
+  "When paginating backwards, are there more items?"
+  hasPreviousPage: Boolean!
+  "When paginating backwards, the cursor to continue."
+  startCursor: String
+}
+"A Stripe Payment Intent"
+type PaymentIntent {
+  amount: Int!
+  clientSecret: String!
+  id: String!
+  paymentMethod: String
+  saveCard: Boolean!
+}
+"Stripe Payment Method"
+type PaymentMethod {
+  card: CreditCard!
+  id: String!
+}
+"A professional football player"
+type Player implements Node & WithSubscriptionsInterface & WithPictureInterface & WithPublicCardsInterface & WithMemberships {
+  activeClub: Club
+  activeClubMembership: Membership
+  activeInjuries: [Injury!]! @deprecated(reason: "injury data not reliable")
+  activeNationalTeam: NationalTeam
+  age: Int!
+  "All player So5Scores ordered by descending game date"
+  allSo5Scores(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): So5ScoreConnection!
+  appearances: Int!
+  beforeLastOwningMembership: Membership
+  bestFoot: String!
+  birthDate: ISO8601DateTime
+  cardSampleUrl(rarity: String!): String
+  cardSupply: [CardSeasonSupply!]!
+  "The `cards` field cannot be nested within a list."
+  cards(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    age: Int
+    owned: Boolean
+    "positions of the card capitalized"
+    positions: [Position!]
+    "rarities of the card in lowercase"
+    rarities: [Rarity!]
+    serialNumber: Int
+    shirtNumber: Int
+    slugs: [String!]
+  ): CardConnection!
+  careerSeasons(
+    "If defined only return seasons for competitions of that type"
+    type: CompetitionType = null
+  ): [Season!]!
+  clubMemberships: [Membership!]!
+  country: Country!
+  currentSeason: Season
+  currentUserSubscription: EmailSubscription
+  displayName: String!
+  draftValue: Int! @deprecated(reason: "no more draft")
+  gameStats(last: Int!, lowCoverage: Boolean = false): [PlayerGameStats]!
+  height: Int
+  id: ID!
+  lastClub: Club
+  matchName: String!
+  memberships: [Membership!]!
+  openAuctions(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): AuctionConnection!
+    @deprecated(reason: "Use the auction field on Transfer Market Type")
+  optaId: String
+  pictureUrl(derivative: String): String
+  position: String!
+  shirtNumber: Int
+  slug: String!
+  "Up to 5 last So5Scores used in a So5Fixture"
+  so5Scores(last: Int!, lowCoverage: Boolean = false): [So5Score]!
+  stats(seasonStartYear: Int!): Stats
+  status: PlayerStatus!
+  subscriptionsCount: Int!
+  tmktImageUrl: String
+    @deprecated(reason: "Replaced by pictureUrl(derivative: \"avatar\")")
+  user: User
+  weight: Int
+}
+"The connection type for Player."
+type PlayerConnection {
+  "A list of edges."
+  edges: [PlayerEdge!]!
+  "A list of nodes."
+  nodes: [Player!]!
+  "Information to aid in pagination."
+  pageInfo: PageInfo!
+}
+"An edge in a connection."
+type PlayerEdge {
+  "A cursor for use in pagination."
+  cursor: String!
+  "The item at the end of the edge."
+  node: Player
+}
+"Stats of a player for a game"
+type PlayerGameStats {
+  accuratePass: Int
+  cleanSheet: Int
+  club: Club! @deprecated(reason: "Replaced by team")
+  crossAccuracy: Int
+  formationPlace: Int
+  fouls: Int
+  game: Game!
+  gameStarted: Int
+  gameStatus: String! @deprecated(reason: "Replaced by status on game field")
+  goalAssist: Int
+  goalKicks: Int
+  goals: Int
+  goalsConceded: Int
+  id: ID!
+  live: Boolean!
+  lostCorners: Int
+  minsPlayed: Int
+  onGameSheet: Boolean!
+  ontargetScoringAtt: Int
+  ownGoals: Int
+  parries: Int
+  passAccuracy: Int
+  penaltiesSaved: Int
+  penaltyKickMissed: Int
+  penaltySave: Int
+  player: Player!
+  redCard: Int
+  relevantStats: Json! @deprecated(reason: "Not relevant with scoring V4")
+  reviewed: Boolean!
+  saves: Int
+  shotAccuracy: Int
+  shotEfficiency: Int
+  singleGoalGame: Int
+  so5Score: So5Score
+  team: Team!
+  totalClearance: Int
+  totalPass: Int
+  totalScoringAtt: Int
+  totalTackle: Int
+  wasFouled: Int
+  yellowCard: Int
+}
+"Represents a list of players available for a minting quota"
+type PlayerPool {
+  common: TieredPlayerPool
+  computedAt: ISO8601DateTime!
+  limited: TieredPlayerPool
+  rare: TieredPlayerPool
+  superRare: TieredPlayerPool
+  unique: TieredPlayerPool
+}
+"Player status based on latest games he has played"
+type PlayerStatus {
+  id: ID!
+  lastFifteenSo5Appearances: Int
+  lastFifteenSo5AverageScore: Float
+  lastFiveSo5Appearances: Int
+  lastFiveSo5AverageScore: Float
+  playingStatus: String
+}
+"A draftable football player"
+type PlayerValue {
+  displayName: String!
+  draftValue: Int!
+  id: ID!
+  position: String!
+  slug: String!
+}
+"A professional football player with current season supply"
+type PlayerWithSupply {
+  availableSupply: Int
+  player: Player!
+  slug: String!
+}
+enum Position {
+  Forward
+  Midfielder
+  Defender
+  Goalkeeper
+  Unknown
+  Coach
+}
+"An object representing the breakdown of the power of a Card"
+type PowerBreakdown {
+  captain: String!
+  fidelity: String!
+  scarcity: String!
+  season: String!
+  version: Int!
+  xp: String!
+}
+"Public user information"
+interface PublicUserInfoInterface {
+  allTimeBestDecks: [Deck!]!
+    @deprecated(reason: "Replaced by allTimeBestDecksInFormation")
+  allTimeBestDecksInFormation: [DeckInFormation!]!
+  "The `auctions` field cannot be nested within a list."
+  auctions(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortByEndDate: SortingOption
+  ): AuctionConnection! @deprecated(reason: "Use englishAuctions instead")
+  awards: [UserAward!]!
+  "The `bought_single_sale_offers` field cannot be nested within a list."
+  boughtSingleSaleOffers(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortByEndDate: SortingOption
+  ): SingleSaleOfferConnection!
+  "The `buying_auctions` field cannot be nested within a list."
+  buyingAuctions(
+    "Returns auctions sorted by `startDate` in descending order when set."
+    newlyListed: Boolean
+  ): [Auction!]! @deprecated(reason: "Use buyingEnglishAuctions instead")
+  "The `buying_english_auctions` field cannot be nested within a list."
+  buyingEnglishAuctions(
+    "Returns auctions sorted by `startDate` in descending order when set."
+    newlyListed: Boolean
+  ): [EnglishAuction!]!
+  cardCounts: CardCount!
+  cards: [Card!]! @deprecated(reason: "Use paginatedCards instead")
+  cardsCount: Int!
+  createdAt: ISO8601DateTime!
+  "The `custom_decks` field cannot be nested within a list."
+  customDecks(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): CustomDeckConnection!
+  "The `ended_buying_auctions` field cannot be nested within a list."
+  endedBuyingAuctions(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): AuctionConnection!
+    @deprecated(reason: "Use endedBuyingEnglishAuctions instead")
+  "The `ended_with_no_buyer_single_sale_offers` field cannot be nested within a list."
+  endedWithNoBuyerSingleSaleOffers(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortByEndDate: SortingOption
+  ): SingleSaleOfferConnection!
+  "The `english_auctions` field cannot be nested within a list."
+  englishAuctions(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortByEndDate: SortingOption
+  ): EnglishAuctionConnection!
+  ethVaultId: Int
+  ethereumAddress: String!
+  followed: EmailSubscription
+  "The `followers` field cannot be nested within a list."
+  followers(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): UserWithSubscriptionSlugConnection!
+  followersCount: Int!
+  "The `following` field cannot be nested within a list."
+  following(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): UserWithSubscriptionSlugConnection!
+  followingCount: Int!
+  highlightedDeck: HighlightedDeck
+  id: ID!
+  "The `live_single_sale_offers` field cannot be nested within a list."
+  liveSingleSaleOffers(
+    "Returns single sale offers sorted by `startDate` in descending order when set."
+    newlyListed: Boolean
+  ): [SingleSaleOffer!]!
+    @deprecated(reason: "Use the paginated version instead")
+  "The `lost_auctions` field cannot be nested within a list."
+  lostAuctions(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortByEndDate: SortingOption
+  ): AuctionConnection! @deprecated(reason: "Use lostEnglishAuctions instead")
+  "The `lost_english_auctions` field cannot be nested within a list."
+  lostEnglishAuctions(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortByEndDate: SortingOption
+  ): EnglishAuctionConnection!
+  nickname: String!
+  openAuctions: [Auction!]!
+    @deprecated(reason: "Secondary market is offer only")
+  openEnglishAuctions: [EnglishAuction!]!
+    @deprecated(reason: "Secondary market is offer only")
+  "The `paginated_cards` field cannot be nested within a list."
+  paginatedCards(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    age: Int
+    owned: Boolean
+    "positions of the card capitalized"
+    positions: [Position!]
+    "rarities of the card in lowercase"
+    rarities: [Rarity!]
+    serialNumber: Int
+    shirtNumber: Int
+    slugs: [String!]
+  ): CardConnection!
+  "The `paginated_live_single_sale_offers` field cannot be nested within a list."
+  paginatedLiveSingleSaleOffers(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortByEndDate: SortingOption
+  ): SingleSaleOfferConnection!
+  profile: UserProfile!
+  "The `single_sale_offers` field cannot be nested within a list."
+  singleSaleOffers(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortByEndDate: SortingOption
+  ): SingleSaleOfferConnection!
+  slug: String!
+  "The `sold_single_sale_offers` field cannot be nested within a list."
+  soldSingleSaleOffers(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortByEndDate: SortingOption
+  ): SingleSaleOfferConnection!
+  sorareAddress: String
+  starkKey: String
+  starkKeyRegistered: Boolean!
+  "The `won_auctions` field cannot be nested within a list."
+  wonAuctions(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortByEndDate: SortingOption
+  ): AuctionConnection! @deprecated(reason: "Use wonEnglishAuctions instead")
+  "The `won_english_auctions` field cannot be nested within a list."
+  wonEnglishAuctions(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortByEndDate: SortingOption
+  ): EnglishAuctionConnection!
+}
+type Query {
+  "Get a list of all cards"
+  allCards(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    age: Int
+    owned: Boolean
+    "positions of the card capitalized"
+    positions: [Position!]
+    "rarities of the card in lowercase"
+    rarities: [Rarity!]
+    serialNumber: Int
+    shirtNumber: Int
+    slugs: [String!]
+  ): CardConnection!
+  "Get latest announcements"
+  announcements(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): AnnouncementConnection!
+  "Fetch auctions"
+  auctions(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): AuctionConnection! @deprecated(reason: "Use transferMarket type instead")
+  "Get a bundled auction"
+  bundledAuction(slug: String!): BundledAuction!
+  "Fetch bundled auctions"
+  bundledAuctions(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): BundledAuctionConnection!
+    @deprecated(reason: "Use transferMarket type instead")
+  "Get a card"
+  card(slug: String!): Card!
+  "Get a card with its blockchain ID"
+  cardByBlockchainId(blockchainId: String!): Card!
+  "Get a cart edition"
+  cardEdition(name: String!): CardEdition!
+  "Get a card sample picture quacking like a card"
+  cardSamplePicture(id: String!): Card!
+  "Get a list of cards"
+  cards(
+    age: Int
+    owned: Boolean
+    "positions of the card capitalized"
+    positions: [Position!]
+    "rarities of the card in lowercase"
+    rarities: [Rarity!]
+    serialNumber: Int
+    shirtNumber: Int
+    slugs: [String!]
+  ): [Card!]!
+  "Get a club"
+  club(slug: String!): Club!
+  "Get the list of clubs that are released and minted"
+  clubsReady: [Club!]!
+  "Get a Competition"
+  competition(slug: String!): Competition!
+  "Get config"
+  config: Config!
+  "Get a country"
+  country(slug: String!): Country!
+  "Get the current block height of Ethereum blockchain"
+  currentBlockHeight: Int!
+  "Fetch the current So5 Fixture"
+  currentSo5Fixture: So5Fixture!
+    @deprecated(reason: "Use default value of so5Fixture")
+  "Fetch the current user."
+  currentUser: CurrentUser
+  "Get a CustomDeck"
+  customDeck(slug: String!): CustomDeck!
+  "Get a Deck by slug"
+  deck(slug: String!): Deck! @deprecated(reason: "Replaced by deckInFormation")
+  "Get a DeckInFormation"
+  deckInFormation(slug: String!): DeckInFormation!
+  "Get an english auction"
+  englishAuction(slug: String!): BundledAuction!
+  "Get a list of cards owned by an ethereum account"
+  ethereumCards(address: String!): [Card!]!
+  "Get the featured list of So5Fixture (currently relevant So5 fixtures)"
+  featuredSo5Fixtures(first: Int): [So5Fixture!]!
+  "Get a Game"
+  game(id: ID!): Game!
+  leaguesOpenForGameStats: [Competition!]!
+  "Get a national team"
+  nationalTeam(slug: String!): NationalTeam!
+  "Get the next batch nonce for a given address"
+  nextRelayBatchNonce(address: String!): Int!
+  "Fetches an object given its ID."
+  node("ID of the object." id: ID!): Node
+  "Fetches a list of objects given a list of IDs."
+  nodes("IDs of the objects." ids: [ID!]!): [Node]!
+  "Get an OAuth application from the client id"
+  oauthApplication(clientId: String!): OAuthApplication!
+  "Get a pack"
+  pack(id: String!): Pack! @deprecated(reason: "We do not sell packs anymore")
+  "Get packs on sale"
+  packs(size: Int): [Pack!]! @deprecated(reason: "We do not sell packs anymore")
+  "Get a player"
+  player(slug: String!): Player!
+  "Get a list of players"
+  players(slugs: [String!]!): [Player!]!
+  "Get a potential referrer for a given name"
+  referrer(name: String!): String
+  "Get a list of released players with their value"
+  releasedPlayerValues: [PlayerValue!]!
+    @deprecated(reason: "Not maintained anymore")
+  "Get a season"
+  season(startYear: Int!): Season!
+  "Fetch single sale offers"
+  singleSaleOffers(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): SingleSaleOfferConnection!
+    @deprecated(reason: "Use transferMarket type instead")
+  "Get paginated available skins"
+  skins(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    position: SkinPosition
+    unlockedOnly: Boolean
+  ): SkinConnection!
+  "Get a So5Fixture"
+  so5Fixture(id: ID, slug: String): So5Fixture!
+  "Get a list of So5Fixture"
+  so5Fixtures(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): So5FixtureConnection!
+  "Get a So5Leaderboard"
+  so5Leaderboard(slug: String!): So5Leaderboard!
+  "Get a So5League"
+  so5League(slug: String!): So5League!
+  "Get a So5Lineup"
+  so5Lineup(id: ID!): So5Lineup!
+  "Get a So5Ranking"
+  so5Ranking(id: ID!): So5Ranking!
+  "Get paginated rankings for a leaderboard"
+  so5Rankings(
+    so5LeaderboardSlug: String!
+    page: Int!
+    pageSize: Int
+  ): So5RankingsPaginated! @deprecated(reason: "use so5Leaderboard query")
+  "Get a So5Reward"
+  so5Reward(slug: String!): So5Reward!
+  "Get a So5Score"
+  so5Score(id: ID!): So5Score!
+  "Get a Starkware account."
+  starkwareAccount(starkKey: String!): StarkwareAccount!
+  transferMarket: TransferMarket!
+  "Get a user."
+  user(slug: String!): User!
+  "Get a list of users."
+  users(slugs: [String!]!): [User!]!
+}
+type Range {
+  "Max price, in wei."
+  max: String!
+  "Min price, in wei."
+  min: String!
+}
+type RaritiesCardLayout {
+  common: CardLayout
+  limited: CardLayout
+  rare: CardLayout
+  superRare: CardLayout
+  unique: CardLayout
+}
+enum Rarity {
+  unique
+  super_rare
+  rare
+  limited
+  common
+}
+"A referral"
+type Referral implements Node {
+  aasmState: String!
+  expirationDate: ISO8601DateTime!
+  id: ID!
+  referee: User!
+  refereeCardsBoughtAtAuctionCount: Int!
+  refereeConfirmedAt: ISO8601DateTime
+  refereeIdentification: String
+  refereeInvitationSentAt: ISO8601DateTime
+  referrer: Referrer!
+  referrerReward: ReferralReward
+}
+type ReferralPaginated {
+  id: String!
+  pages: Int!
+  referrals: [Referral!]!
+  totalCount: Int!
+}
+"A referral reward"
+type ReferralReward {
+  card: Card!
+  id: ID!
+  shippingState: ShippingState!
+}
+"A user notification regarding a referral reward"
+type ReferralRewardNotification implements NotificationInterface {
+  createdAt: ISO8601DateTime!
+  id: ID!
+  name: String!
+  read: Boolean!
+  referralReward: ReferralReward!
+  user: CurrentUser!
+}
+enum ReferralState {
+  ALL
+  EXPIRED
+  COMPLETED
+  IN_PROGRESS
+}
+"Object that can be a referrer"
+union Referrer = User | UserSource
+"A rewarded card"
+type RewardCard {
+  card: Card!
+  id: ID!
+  pictureUrl: String
+  quality: String
+  so5Reward: So5Reward
+  upgradedQuality: String
+}
+"A user notification regarding a Sale"
+type SaleNotification implements NotificationInterface {
+  buyer: User
+  card: Card!
+  createdAt: ISO8601DateTime!
+  id: ID!
+  name: String!
+  priceInWei: String!
+  read: Boolean!
+  seller: User!
+  user: CurrentUser!
+}
+"A football season"
+type Season implements WithPublicCardsInterface {
+  "The `cards` field cannot be nested within a list."
+  cards(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    age: Int
+    owned: Boolean
+    "positions of the card capitalized"
+    positions: [Position!]
+    "rarities of the card in lowercase"
+    rarities: [Rarity!]
+    serialNumber: Int
+    shirtNumber: Int
+    slugs: [String!]
+  ): CardConnection!
+  id: ID!
+  name: String!
+  startYear: Int!
+}
+"A player season picture"
+type SeasonPicture implements WithPictureInterface & Node {
+  chinY: Float
+  chinYTarget: Int
+  club: Club @deprecated(reason: "Replaced by team")
+  eyeLeft: FaceLandmark!
+  eyeRight: FaceLandmark!
+  height: Int!
+  id: ID!
+  kit: String
+  nose: FaceLandmark!
+  offsetX: Int!
+  offsetY: Int!
+  pictureUrl(derivative: String): String
+  player: Player!
+  team: Team!
+  width: Int!
+}
+enum ShippingState {
+  READY_TO_CLAIM
+  CLAIMED
+}
+"A Single Buy Offer Min Price"
+type SingleBuyOfferMinPrice implements Node {
+  amount: String!
+  card: Card!
+  id: ID!
+  isPrivate: Boolean!
+  user: User!
+}
+"An Single Sale Offer on a Card"
+type SingleSaleOffer implements Node & OfferInterface {
+  aasmState: String!
+  acceptedAt: ISO8601DateTime
+  acceptor: User
+  actualReceiver: User @deprecated(reason: "Prefer using acceptor instead")
+  belongsToUser: Boolean!
+    @deprecated(reason: "subscriptions do not scale if user dependent")
+  blockchainId: String
+  cancelledAt: ISO8601DateTime
+  card: Card!
+  contract: Contract
+  createdAt: ISO8601DateTime!
+  creditCardFee: Float!
+  deal: Deal
+  endDate: ISO8601DateTime!
+  ethereumTransaction: EthereumTransaction
+  id: ID!
+  minSignatureExpirationDate: ISO8601DateTime!
+  mintedAt: ISO8601DateTime
+    @deprecated(reason: "Prefer using createdAt instead.")
+  open: Boolean!
+  price: String!
+  priceInFiat: Fiat!
+  "List of LimitOrder objects used as payload to sign for the `acceptOffer` mutation."
+  receiverLimitOrders: [LimitOrder!]
+    @deprecated(reason: "Use the `prepareAcceptOffer` mutation")
+  sender: Ownerable!
+  startDate: ISO8601DateTime!
+}
+"The connection type for SingleSaleOffer."
+type SingleSaleOfferConnection {
+  "A list of edges."
+  edges: [SingleSaleOfferEdge!]!
+  "A list of nodes."
+  nodes: [SingleSaleOffer!]!
+  "Information to aid in pagination."
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+"An edge in a connection."
+type SingleSaleOfferEdge {
+  "A cursor for use in pagination."
+  cursor: String!
+  "The item at the end of the edge."
+  node: SingleSaleOffer
+}
+"A skin to customize a user gallery"
+type Skin implements Node {
+  color: String
+  id: ID!
+  name: String!
+  pictureUrl: String!
+  position: SkinPosition!
+  price: Int!
+  quality: SkinQuality!
+  unlocked: Boolean!
+}
+"The connection type for Skin."
+type SkinConnection {
+  "A list of edges."
+  edges: [SkinEdge!]!
+  "A list of nodes."
+  nodes: [Skin!]!
+  "Information to aid in pagination."
+  pageInfo: PageInfo!
+}
+"An edge in a connection."
+type SkinEdge {
+  "A cursor for use in pagination."
+  cursor: String!
+  "The item at the end of the edge."
+  node: Skin
+}
+enum SkinPosition {
+  BANNER
+  SHIELD
+}
+enum SkinQuality {
+  AMATEUR
+  SEMI_PRO
+  PRO
+  LEGEND
+}
+"A SO5 Appearance - a card selected in a team for a SO5 fixture"
+type So5Appearance implements Node {
+  bonus: Float
+  captain: Boolean!
+  card: Card!
+  cleanScore: Float
+  game: Game
+  id: ID!
+  playerGameStats: PlayerGameStats
+  relevantStats: Json!
+  score: Float
+  so5Fixture: So5Fixture!
+  so5Game: So5Game
+    @deprecated(reason: "Not maintained anymore, use game instead")
+  so5Lineup: So5Lineup!
+  so5Score: So5Score
+  status: String!
+}
+"A SO5 Appearance - a card selected in a team for a SO5 fixture"
+input So5AppearanceInput {
+  cardSlug: String!
+  captain: Boolean!
+}
+"The at least of clubs rule of a So5Leaderboard"
+type So5AtLeastOfClubs {
+  clubs: [Club!]!
+  min: Int!
+}
+"The at least of competitions rule of a So5Leaderboard"
+type So5AtLeastOfCompetitions {
+  competitions: [Competition!]!
+  min: Int!
+}
+"A SO5 fixture"
+type So5Fixture implements Node {
+  aasmState: String!
+  appearancesInFixtureInterval: [So5Appearance!]!
+    @deprecated(reason: "Can be found with mySo5Lineups")
+  canCompose: Boolean!
+  cutOffDate: ISO8601DateTime!
+  endDate: ISO8601DateTime!
+  eventType: String!
+  gameWeek: Int!
+  "The `games` field cannot be nested within a list."
+  games: [Game!]!
+  hashedSalt: String
+  id: ID!
+  "The `my_so5_games` field cannot be nested within a list."
+  mySo5Games: [Game!]!
+  mySo5Lineups: [So5Lineup!]!
+  mySo5Rankings: [So5Ranking!]!
+  mySo5Rewards: [So5Reward!]!
+  myTotalXpWon: Int!
+  "The `next` field cannot be nested within a list."
+  next: So5Fixture
+  "The `ordered_so5_scores` field cannot be nested within a list."
+  orderedSo5Scores(first: Int!): [OrderedSo5Scores!]!
+  "Get ordered So5Score by position"
+  orderedSo5ScoresByPosition(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    position: String!
+    minScore: Int
+  ): So5ScoreConnection!
+  "The `previous` field cannot be nested within a list."
+  previous: So5Fixture
+  replayedFixture: So5Fixture
+  salt: String
+  slug: String!
+  "The `so5_leaderboards` field cannot be nested within a list."
+  so5Leaderboards: [So5Leaderboard!]!
+  "The `so5_leagues` field cannot be nested within a list."
+  so5Leagues: [So5League!]!
+  so5Rewards: [So5Reward!]!
+    @deprecated(reason: "Use leaderboard rewards instead")
+  specialWeeklyBanner: SpecialWeeklyBanner
+  startDate: ISO8601DateTime!
+}
+"The connection type for So5Fixture."
+type So5FixtureConnection {
+  "A list of edges."
+  edges: [So5FixtureEdge!]!
+  "A list of nodes."
+  nodes: [So5Fixture!]!
+  "Information to aid in pagination."
+  pageInfo: PageInfo!
+}
+"An edge in a connection."
+type So5FixtureEdge {
+  "A cursor for use in pagination."
+  cursor: String!
+  "The item at the end of the edge."
+  node: So5Fixture
+}
+"A SO5 Game - a game included in a SO5 fixture (deprecated)"
+type So5Game implements Node {
+  game: Game!
+  id: ID!
+  so5Fixture: So5Fixture!
+}
+"A SO5 Leaderboard"
+type So5Leaderboard implements So5LeaderboardRulesInterface {
+  algoliaFilters: String
+  division: Int!
+  enabled: Boolean!
+  id: ID!
+  mySo5Lineups: [So5Lineup!]!
+  mySo5Rankings: [So5Ranking!]!
+  name: String!
+  powerCap: Float
+  rewardedLineupsCount: Int!
+  rewards: Json!
+  rules: So5Rules
+  scoringEngine: String
+  shieldName: String @deprecated(reason: "Not in use anymore")
+  slug: String!
+  so5Fixture: So5Fixture!
+  so5League: So5League!
+  so5Lineup(id: String): So5Lineup
+  so5Lineups: [So5Lineup!]!
+    @deprecated(reason: "Use so5LineupsPaginated instead")
+  so5LineupsCount: Int!
+  "The `so5_lineups_paginated` field cannot be nested within a list."
+  so5LineupsPaginated(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): So5LineupConnection!
+  "The `so5_rankings` field cannot be nested within a list."
+  so5Rankings(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): So5RankingConnection!
+  "Get paginated rankings for a leaderboard"
+  so5RankingsPaginated(page: Int, pageSize: Int): So5RankingsPaginated!
+  "The `so5_rankings_preview` field cannot be nested within a list."
+  so5RankingsPreview: [So5Ranking!]!
+  "The `so5_rewards` field cannot be nested within a list."
+  so5Rewards(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): So5RewardConnection!
+  teamsCap: Int
+}
+"So5Leaderboard Rules"
+interface So5LeaderboardRulesInterface {
+  rules: So5Rules
+}
+"A So5 league"
+type So5League implements Node {
+  category: String!
+  description: String @deprecated(reason: "No longer maintained")
+  id: ID!
+  name: String!
+  rewardPool(rarity: String!, quality: String!): [PlayerWithSupply!]!
+  slug: String!
+  so5Fixture: So5Fixture!
+  so5Leaderboards: [So5Leaderboard!]!
+}
+"A SO5 lineup"
+type So5Lineup implements SocialPicturesInterface & Node {
+  draft: Boolean!
+  id: ID!
+  name: String
+  score: String @deprecated(reason: "use so5Rankings.score")
+  so5Appearances: [So5Appearance!]!
+  so5Fixture: So5Fixture!
+  so5Leaderboard: So5Leaderboard
+  so5Rankings: [So5Ranking!]!
+  socialPictureUrls: SocialPictureDerivative!
+  user: User!
+}
+"The connection type for So5Lineup."
+type So5LineupConnection {
+  "A list of edges."
+  edges: [So5LineupEdge!]!
+  "A list of nodes."
+  nodes: [So5Lineup!]!
+  "Information to aid in pagination."
+  pageInfo: PageInfo!
+}
+"An edge in a connection."
+type So5LineupEdge {
+  "A cursor for use in pagination."
+  cursor: String!
+  "The item at the end of the edge."
+  node: So5Lineup
+}
+"A user notification regarding a So5Lineup"
+type So5LineupNotification implements NotificationInterface {
+  card: Card
+  createdAt: ISO8601DateTime!
+  id: ID!
+  name: String!
+  read: Boolean!
+  so5Lineup: So5Lineup!
+  user: CurrentUser!
+}
+"A SO5 Ranking"
+type So5Ranking implements Node {
+  eligibleForReward: Boolean!
+  id: ID!
+  ranking: Int
+  score: Float!
+  so5Fixture: So5Fixture!
+  so5Leaderboard: So5Leaderboard!
+  so5Lineup: So5Lineup!
+}
+"The connection type for So5Ranking."
+type So5RankingConnection {
+  "A list of edges."
+  edges: [So5RankingEdge!]!
+  "A list of nodes."
+  nodes: [So5Ranking!]!
+  "Information to aid in pagination."
+  pageInfo: PageInfo!
+}
+"An edge in a connection."
+type So5RankingEdge {
+  "A cursor for use in pagination."
+  cursor: String!
+  "The item at the end of the edge."
+  node: So5Ranking
+}
+type So5RankingsPaginated {
+  currentPage: Int!
+  id: String!
+  pages: Int!
+  so5Rankings: [So5Ranking!]!
+  totalCount: Int!
+}
+"The rarity rule of a So5Leaderboard"
+type So5Rarity {
+  common: ValueBoundaries!
+  limited: ValueBoundaries!
+  rare: ValueBoundaries!
+  superRare: ValueBoundaries!
+  unique: ValueBoundaries!
+}
+"A SO5 Reward"
+type So5Reward implements Node {
+  aasmState: String!
+  cards: [Card!]! @deprecated(reason: "Replaced by rewardCards")
+  id: ID!
+  ranking: Int! @deprecated(reason: "Replaced by so5Ranking")
+  rewardCards: [RewardCard!]!
+  slug: String!
+  so5Fixture: So5Fixture!
+  so5Leaderboard: So5Leaderboard!
+  so5Ranking: So5Ranking
+  weiAmount: String!
+}
+"The connection type for So5Reward."
+type So5RewardConnection {
+  "A list of edges."
+  edges: [So5RewardEdge!]!
+  "A list of nodes."
+  nodes: [So5Reward!]!
+  "Information to aid in pagination."
+  pageInfo: PageInfo!
+}
+"An edge in a connection."
+type So5RewardEdge {
+  "A cursor for use in pagination."
+  cursor: String!
+  "The item at the end of the edge."
+  node: So5Reward
+}
+"The rule set of a So5Leaderboard"
+type So5Rules {
+  activeClubs: [Club!]
+  age: Age
+  atLeastOfClubs: So5AtLeastOfClubs
+  atLeastOfCompetitions: So5AtLeastOfCompetitions
+  averageScore: ValueOpenBoundaries
+  captainRarities: [String!]
+  clubs: [Club!] @deprecated(reason: "No longer maintained")
+  competitions: [Competition!]
+  id: ID!
+  internationalCompetitions: [Competition!]
+  leagues: [Competition!]
+  maxAge: Int @deprecated(reason: "replaced by age")
+  minAge: Int @deprecated(reason: "replaced by age")
+  nationalities: [Country!]
+  notDomesticCompetitions: [Competition!]
+  notNationalities: [Country!]
+  rarities: [String!]
+  rarityLimits: So5Rarity
+  sameClub: Boolean @deprecated(reason: "No longer maintained")
+  sameNationality: Boolean
+  seasons: [Season!]
+  serialNumber: String
+}
+"A SO5 Score"
+type So5Score implements Node {
+  detailedScore: [StatScore!]!
+  id: ID!
+  player: Player!
+  playerGameStats: PlayerGameStats!
+  position: String!
+  score: Float
+  scoringVersion: Int!
+}
+"The connection type for So5Score."
+type So5ScoreConnection {
+  "A list of edges."
+  edges: [So5ScoreEdge!]!
+  "A list of nodes."
+  nodes: [So5Score!]!
+  "Information to aid in pagination."
+  pageInfo: PageInfo!
+}
+"An edge in a connection."
+type So5ScoreEdge {
+  "A cursor for use in pagination."
+  cursor: String!
+  "The item at the end of the edge."
+  node: So5Score
+}
+"A Social picture with all its derivative"
+type SocialPictureDerivative {
+  post: String
+  square: String
+  story: String
+}
+"Social pictures"
+interface SocialPicturesInterface {
+  socialPictureUrls: SocialPictureDerivative!
+}
+"An encrypted private key"
+type SorarePrivateKey {
+  encryptedPrivateKey: String!
+  iv: String!
+  salt: String!
+}
+"An encrypted private key"
+input SorarePrivateKeyAttributes {
+  iv: String!
+  salt: String!
+  encryptedPrivateKey: String!
+}
+enum SortingOption {
+  ASC
+  DESC
+}
+"A special weekly banner"
+type SpecialWeeklyBanner implements WithPictureInterface {
+  background: String
+  cardUrl: String
+  href: String
+  hrefLabel: String
+  id: ID!
+  logoUrl: String
+  pictureUrl(derivative: String): String
+  prizeLabel: String
+  sectionName: String
+  slug: String!
+  subtitle: String
+  title: String!
+}
+input StarkSignatureInput {
+  "Signature of the associated LimitOrder object, transported as JSON. Computed with `@sorare/crypto`."
+  data: String!
+  "Nonce of the associated LimitOrder object. Retrieved through the `limitOrders` field."
+  nonce: Int!
+  "Mandatory if expirationTimestamp is not set"
+  expiration: ISO8601DateTime
+  "Required if expiration is not set"
+  expirationTimestamp: Int
+  starkKey: String
+}
+"A Starkware Account"
+type StarkwareAccount {
+  id: ID!
+  starkKey: String!
+  user: User
+}
+"Withdrawal of a token to Ethereum"
+type StarkwareWithdrawal {
+  aasmState: String!
+  card: Card
+  destination: String
+  ethereumTransaction: EthereumTransaction
+  id: ID!
+}
+enum StatCategory {
+  GENERAL
+  DEFENDING
+  POSSESSION
+  PASSING
+  ATTACKING
+  GOALKEEPING
+  POSITIVE_DECISIVE_STAT
+  NEGATIVE_DECISIVE_STAT
+  UNKNOWN
+}
+"Score contribution of a given stat"
+type StatScore {
+  category: StatCategory!
+  points: Float!
+  stat: String!
+  statValue: Float!
+  totalScore: Float!
+}
+"Stats of a player for a competition"
+type Stats {
+  appearances: Int!
+  assists: Int!
+  goals: Int!
+  id: String!
+  minutesPlayed: Int!
+  player: Player
+    @deprecated(reason: "Use the player in the upper context instead")
+  redCards: Int!
+  season: Season
+  substituteIn: Int!
+  substituteOut: Int!
+  yellowCards: Int!
+}
+"Object that can be subscribed to"
+union Subscribable = Card | Club | Country | Player | User
+input SubscribableInput {
+  type: String!
+  slug: String!
+}
+enum SubscribableType {
+  CARD
+  PLAYER
+  COUNTRY
+  TEAM
+  USER
+}
+"Type of a subscriber to a new card, player, country or club related auction"
+union Subscriber = CurrentUser
+type Subscription {
+  aCardWasUpdated: Card!
+  bundledAuctionWasUpdated: BundledAuction!
+  currentUserWasUpdated: CurrentUser!
+  gameWasUpdated: Game!
+  offerWasUpdated: Offer!
+  packWasSold(id: ID!): Pack! @deprecated(reason: "Not used anymore.")
+  "Triggered on new bid or card sold on the public market"
+  publicMarketWasUpdated: Card!
+}
+"Object that can be a team"
+union Team = Club | NationalTeam
+"Objects with publicly accessible cards"
+interface TeamInterface {
+  activeCompetitions: [Competition!]!
+  "The `active_memberships` field cannot be nested within a list."
+  activeMemberships(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): MembershipConnection!
+  "The `active_players` field cannot be nested within a list."
+  activePlayers(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): PlayerConnection!
+  "The `cards` field cannot be nested within a list."
+  cards(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    age: Int
+    owned: Boolean
+    "positions of the card capitalized"
+    positions: [Position!]
+    "rarities of the card in lowercase"
+    rarities: [Rarity!]
+    serialNumber: Int
+    shirtNumber: Int
+    slugs: [String!]
+  ): CardConnection!
+  code: String
+  colorBottom: String
+    @deprecated(reason: "replaced by colorRight on customBanner")
+  colorTop: String @deprecated(reason: "replaced by colorLeft on customBanner")
+  country: Country!
+  customBanner: CustomBanner
+  founded: String
+  "The `games` field cannot be nested within a list."
+  games(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    "Start time (inclusive) of the game."
+    startDate: ISO8601DateTime!
+    "End time (inclusive) of the game."
+    endDate: ISO8601DateTime!
+  ): GameConnection!
+  id: ID!
+  lastFiveGames: [Game!]!
+  "The `latest_games` field cannot be nested within a list."
+  latestGames(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): GameConnection!
+  license: License!
+  name: String!
+  "The `open_auctions` field cannot be nested within a list."
+  openAuctions(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): AuctionConnection!
+  optaId: String
+  pictureSecondaryUrl: String
+  pictureUrl(derivative: String): String
+  pictureUrlByRarity(derivative: String): Json!
+    @deprecated(reason: "Replaced teamPictureUrl on CardType")
+  "The `players` field cannot be nested within a list."
+  players(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): PlayerConnection!
+  ready: Boolean!
+  "The `recent_departures` field cannot be nested within a list."
+  recentDepartures(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): PlayerConnection!
+  slug: String!
+  upcomingGames(first: Int!): [Game]!
+}
+"Represents a list of players available for a minting quota organized by tiers"
+type TieredPlayerPool {
+  tier0: [String!]!
+  tier1: [String!]!
+  tier2: [String!]!
+  tier3: [String!]!
+}
+enum Tradeable {
+  "The card is stored in the Sorare account"
+  INTERNAL @deprecated(reason: "Use WalletStatus instead")
+  "The card is stored in the mapped account"
+  MAPPED @deprecated(reason: "Use WalletStatus instead")
+  "The card is neither in the Sorare account nor in the mapped account"
+  NO
+  "The card is still on Loom"
+  NOT_YET
+  "The card is on sale"
+  ON_SALE @deprecated(reason: "Not needed anymore")
+  "The card is transferrable"
+  YES
+  "The card has no owner or does not belong to the user"
+  UNDEFINED
+}
+enum TransactionStatus {
+  "Transaction is currently minting"
+  PENDING
+  "Transaction confirmed"
+  CONFIRMED
+  "Transaction failed"
+  FAILED
+  "Transaction cancelled"
+  CANCELLED
+  "Transaction dropped"
+  DROPPED
+}
+"The Transfer Market queries"
+type TransferMarket {
+  auctions(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    playerSlugs: [String!]
+  ): AuctionConnection! @deprecated(reason: "Use `englishAuctions` instead")
+  banners: [TransferMarketBanner!]!
+  bundledAuction(slug: String!): BundledAuction
+  bundledAuctions(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    playerSlugs: [String!]
+  ): BundledAuctionConnection!
+    @deprecated(reason: "Use `englishAuctions` instead")
+  bundledAuctionsWithCards(slugs: [String!]!): [BundledAuction!]!
+  bundlesFirst: Boolean!
+  cardWeiMinPrice: String!
+  englishAuction(slug: String!): BundledAuction!
+  englishAuctions(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    playerSlugs: [String!]
+    "Filter on single or multi card auctions or get all auctions by omitting this argument"
+    bundled: Boolean
+  ): EnglishAuctionConnection!
+  featuredBundledAuctions(size: Int, window: Int): [BundledAuction!]!
+  id: String!
+  limitOrdersForOffer(
+    type: OfferType
+    sendCardsSlugs: [String!]!
+    receiveCardsSlugs: [String!]!
+    sendWeiAmount: WeiAmount!
+    receiveWeiAmount: WeiAmount!
+    receiverSlug: String
+  ): [LimitOrder!]! @deprecated(reason: "Use the `prepareOffer` mutation")
+  offer(id: String!): Offer!
+  powerHourStartDate: ISO8601DateTime
+  secondaryBanners: [TransferMarketBanner!]!
+  singleSaleOffers(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): SingleSaleOfferConnection!
+}
+"A transfer market banner"
+type TransferMarketBanner implements WithPictureInterface {
+  background: String
+  colorLeft: String
+  colorRight: String
+  href: String
+  hrefLabel: String
+  id: ID!
+  pictureUrl(derivative: String): String
+  slug: String!
+  subtitle: String
+  title: String!
+  videoUrl: String
+}
+"Signable payload for a Starkware transfer request"
+type TransferRequest {
+  amount: String!
+  condition: String
+  expirationTimestamp: Int!
+  feeInfoUser: Fee
+  nonce: Int!
+  receiverPublicKey: String!
+  receiverVaultId: Int!
+  senderVaultId: Int!
+  token: String!
+}
+"A Sorare user"
+type User implements PublicUserInfoInterface {
+  allTimeBestDecks: [Deck!]!
+    @deprecated(reason: "Replaced by allTimeBestDecksInFormation")
+  allTimeBestDecksInFormation: [DeckInFormation!]!
+  "The `auctions` field cannot be nested within a list."
+  auctions(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortByEndDate: SortingOption
+  ): AuctionConnection! @deprecated(reason: "Use englishAuctions instead")
+  awards: [UserAward!]!
+  "The `bought_single_sale_offers` field cannot be nested within a list."
+  boughtSingleSaleOffers(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortByEndDate: SortingOption
+  ): SingleSaleOfferConnection!
+  "The `buying_auctions` field cannot be nested within a list."
+  buyingAuctions(
+    "Returns auctions sorted by `startDate` in descending order when set."
+    newlyListed: Boolean
+  ): [Auction!]! @deprecated(reason: "Use buyingEnglishAuctions instead")
+  "The `buying_english_auctions` field cannot be nested within a list."
+  buyingEnglishAuctions(
+    "Returns auctions sorted by `startDate` in descending order when set."
+    newlyListed: Boolean
+  ): [EnglishAuction!]!
+  cardCounts: CardCount!
+  cards: [Card!]! @deprecated(reason: "Use paginatedCards instead")
+  cardsCount: Int!
+  createdAt: ISO8601DateTime!
+  "The `custom_decks` field cannot be nested within a list."
+  customDecks(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): CustomDeckConnection!
+  "The `ended_buying_auctions` field cannot be nested within a list."
+  endedBuyingAuctions(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): AuctionConnection!
+    @deprecated(reason: "Use endedBuyingEnglishAuctions instead")
+  "The `ended_with_no_buyer_single_sale_offers` field cannot be nested within a list."
+  endedWithNoBuyerSingleSaleOffers(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortByEndDate: SortingOption
+  ): SingleSaleOfferConnection!
+  "The `english_auctions` field cannot be nested within a list."
+  englishAuctions(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortByEndDate: SortingOption
+  ): EnglishAuctionConnection!
+  ethVaultId: Int
+  ethereumAddress: String!
+  followed: EmailSubscription
+  "The `followers` field cannot be nested within a list."
+  followers(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): UserWithSubscriptionSlugConnection!
+  followersCount: Int!
+  "The `following` field cannot be nested within a list."
+  following(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): UserWithSubscriptionSlugConnection!
+  followingCount: Int!
+  highlightedDeck: HighlightedDeck
+  id: ID!
+  "The `live_single_sale_offers` field cannot be nested within a list."
+  liveSingleSaleOffers(
+    "Returns single sale offers sorted by `startDate` in descending order when set."
+    newlyListed: Boolean
+  ): [SingleSaleOffer!]!
+    @deprecated(reason: "Use the paginated version instead")
+  "The `lost_auctions` field cannot be nested within a list."
+  lostAuctions(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortByEndDate: SortingOption
+  ): AuctionConnection! @deprecated(reason: "Use lostEnglishAuctions instead")
+  "The `lost_english_auctions` field cannot be nested within a list."
+  lostEnglishAuctions(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortByEndDate: SortingOption
+  ): EnglishAuctionConnection!
+  nickname: String!
+  openAuctions: [Auction!]!
+    @deprecated(reason: "Secondary market is offer only")
+  openEnglishAuctions: [EnglishAuction!]!
+    @deprecated(reason: "Secondary market is offer only")
+  "The `paginated_cards` field cannot be nested within a list."
+  paginatedCards(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    age: Int
+    owned: Boolean
+    "positions of the card capitalized"
+    positions: [Position!]
+    "rarities of the card in lowercase"
+    rarities: [Rarity!]
+    serialNumber: Int
+    shirtNumber: Int
+    slugs: [String!]
+  ): CardConnection!
+  "The `paginated_live_single_sale_offers` field cannot be nested within a list."
+  paginatedLiveSingleSaleOffers(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortByEndDate: SortingOption
+  ): SingleSaleOfferConnection!
+  profile: UserProfile!
+  "The `single_sale_offers` field cannot be nested within a list."
+  singleSaleOffers(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortByEndDate: SortingOption
+  ): SingleSaleOfferConnection!
+  slug: String!
+  "The `sold_single_sale_offers` field cannot be nested within a list."
+  soldSingleSaleOffers(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortByEndDate: SortingOption
+  ): SingleSaleOfferConnection!
+  sorareAddress: String
+  starkKey: String
+  starkKeyRegistered: Boolean!
+  "The `won_auctions` field cannot be nested within a list."
+  wonAuctions(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortByEndDate: SortingOption
+  ): AuctionConnection! @deprecated(reason: "Use wonEnglishAuctions instead")
+  "The `won_english_auctions` field cannot be nested within a list."
+  wonEnglishAuctions(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortByEndDate: SortingOption
+  ): EnglishAuctionConnection!
+}
+"A user account entry"
+type UserAccountEntry implements Node {
+  aasmState: UserAccountEntryState!
+  amount: String!
+  date: ISO8601DateTime!
+  entryType: UserAccountEntryEntry!
+  id: ID!
+  operation: UserAccountEntryOperation
+  provisional: Boolean!
+  user: User!
+}
+"The connection type for UserAccountEntry."
+type UserAccountEntryConnection {
+  "A list of edges."
+  edges: [UserAccountEntryEdge!]!
+  "A list of nodes."
+  nodes: [UserAccountEntry!]!
+  "Information to aid in pagination."
+  pageInfo: PageInfo!
+}
+"An edge in a connection."
+type UserAccountEntryEdge {
+  "A cursor for use in pagination."
+  cursor: String!
+  "The item at the end of the edge."
+  node: UserAccountEntry
+}
+enum UserAccountEntryEntry {
+  PAYMENT
+  DEPOSIT
+  WITHDRAWAL
+  REWARD
+  ETH_MIGRATION_ROUNDING
+  WITHDRAWAL_FEE
+}
+"Object that can be an operation of a UserAccountEntry"
+union UserAccountEntryOperation =
+    Bid
+  | EthMigration
+  | FastWithdrawal
+  | FullWithdrawalRequest
+  | Offer
+  | So5Reward
+  | StarkwareWithdrawal
+  | Withdrawal
+enum UserAccountEntryState {
+  PENDING
+  CANCELLED
+  CONFIRMED
+}
+"A user award"
+type UserAward {
+  award: Award!
+  category: AwardCategory!
+  claimableReward: Int
+  claimedLevel: Int
+  completed: Boolean!
+  level: Int!
+  maxLevel: Int!
+  nextLevel: Int!
+  nextRequirement: String
+  nextReward: Int
+  progression: String
+  slug: String!
+}
+"A user notification regarding an Award event"
+type UserAwardNotification implements NotificationInterface {
+  amount: Int
+  award: UserAward!
+  createdAt: ISO8601DateTime!
+  id: ID!
+  level: Int
+  name: String!
+  read: Boolean!
+  user: CurrentUser!
+}
+"The connection type for User."
+type UserConnection {
+  "A list of edges."
+  edges: [UserEdge!]!
+  "A list of nodes."
+  nodes: [User!]!
+  "Information to aid in pagination."
+  pageInfo: PageInfo!
+}
+"An edge in a connection."
+type UserEdge {
+  "A cursor for use in pagination."
+  cursor: String!
+  "The item at the end of the edge."
+  node: User
+}
+"A user-readable error"
+type UserError {
+  "The error code"
+  code: Int
+  "A description of the error"
+  message: String!
+  "Which input value this error came from"
+  path: [String!]
+}
+"A user lifecycle entry"
+input UserLifecycleInput {
+  name: String!
+  value: Json!
+}
+"User Offer Interface"
+interface UserOffersInterface {
+  blockedUntil: ISO8601DateTime
+  blockedUsers(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): UserConnection!
+  directOffers(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    direction: OfferDirection!
+    sortType: SortingOption
+  ): OfferConnection!
+  endedDirectOffersReceived(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortType: SortingOption
+  ): OfferConnection!
+  endedDirectOffersSent(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortType: SortingOption
+  ): OfferConnection!
+  pendingDirectOffersReceived(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortType: SortingOption
+  ): OfferConnection!
+  pendingDirectOffersSent(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortType: SortingOption
+  ): OfferConnection!
+}
+"An object representing the past or present ownership of a card by a user"
+type UserOwner implements OwnerInterface {
+  account: Account
+  address: String!
+  blockchain: String!
+  card: Card!
+  "The deal id that created this owner in case it comes from an offer"
+  dealId: String
+  from: ISO8601DateTime!
+  id: ID!
+  migratorApproval: Boolean!
+  optimistic: Boolean!
+  ownerable: User!
+  "Card price, in wei."
+  price: String!
+  transferType: String!
+  userNonce: Int
+}
+"An owner with conversion rates"
+type UserOwnerWithRates implements OwnerInterface {
+  account: Account
+  address: String!
+  blockchain: String!
+  card: Card!
+  "The deal id that created this owner in case it comes from an offer"
+  dealId: String
+  from: ISO8601DateTime!
+  id: ID!
+  migratorApproval: Boolean!
+  optimistic: Boolean!
+  ownerable: User!
+  "Card price, in wei."
+  price: String!
+  priceInFiat: Fiat!
+  transferType: String!
+  userNonce: Int
+}
+"A Sorare user profile"
+type UserProfile implements WithPictureInterface {
+  clubBanner: Skin
+  clubName: String!
+  clubShield: Skin
+  discordUsername: String
+  id: ID!
+  pictureUrl(derivative: String): String
+  "The date the user created his first non rookie / training lineup"
+  proSince: ISO8601DateTime
+  rookie: Boolean! @deprecated(reason: "Rookie concept is no longer being used")
+  slug: String!
+  status: String
+  twitterUsername: String
+  user: User!
+  verified: Boolean!
+}
+"A Sorare user settings"
+type UserSettings {
+  currency: Currency
+  disableAllEmails: Boolean!
+  fiatCurrency: FiatCurrency
+  id: ID!
+  lastTcuVersionAccepted: Boolean!
+  lifecycle: Json!
+  locale: String
+  notificationPreferences: [NotificationPreference!]!
+}
+"User social connections"
+interface UserSocialInterface {
+  followed: EmailSubscription
+  "The `followers` field cannot be nested within a list."
+  followers(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): UserWithSubscriptionSlugConnection!
+  followersCount: Int!
+  "The `following` field cannot be nested within a list."
+  following(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): UserWithSubscriptionSlugConnection!
+  followingCount: Int!
+}
+"An affiliate"
+type UserSource {
+  id: ID!
+  name: String!
+}
+"A Sorare user with the subscription slug of the current user"
+type UserWithSubscriptionSlug implements PublicUserInfoInterface & UserSocialInterface {
+  allTimeBestDecks: [Deck!]!
+    @deprecated(reason: "Replaced by allTimeBestDecksInFormation")
+  allTimeBestDecksInFormation: [DeckInFormation!]!
+  "The `auctions` field cannot be nested within a list."
+  auctions(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortByEndDate: SortingOption
+  ): AuctionConnection! @deprecated(reason: "Use englishAuctions instead")
+  awards: [UserAward!]!
+  "The `bought_single_sale_offers` field cannot be nested within a list."
+  boughtSingleSaleOffers(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortByEndDate: SortingOption
+  ): SingleSaleOfferConnection!
+  "The `buying_auctions` field cannot be nested within a list."
+  buyingAuctions(
+    "Returns auctions sorted by `startDate` in descending order when set."
+    newlyListed: Boolean
+  ): [Auction!]! @deprecated(reason: "Use buyingEnglishAuctions instead")
+  "The `buying_english_auctions` field cannot be nested within a list."
+  buyingEnglishAuctions(
+    "Returns auctions sorted by `startDate` in descending order when set."
+    newlyListed: Boolean
+  ): [EnglishAuction!]!
+  cardCounts: CardCount!
+  cards: [Card!]! @deprecated(reason: "Use paginatedCards instead")
+  cardsCount: Int!
+  createdAt: ISO8601DateTime!
+  "The `custom_decks` field cannot be nested within a list."
+  customDecks(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): CustomDeckConnection!
+  "The `ended_buying_auctions` field cannot be nested within a list."
+  endedBuyingAuctions(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): AuctionConnection!
+    @deprecated(reason: "Use endedBuyingEnglishAuctions instead")
+  "The `ended_with_no_buyer_single_sale_offers` field cannot be nested within a list."
+  endedWithNoBuyerSingleSaleOffers(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortByEndDate: SortingOption
+  ): SingleSaleOfferConnection!
+  "The `english_auctions` field cannot be nested within a list."
+  englishAuctions(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortByEndDate: SortingOption
+  ): EnglishAuctionConnection!
+  ethVaultId: Int
+  ethereumAddress: String!
+  followed: EmailSubscription
+  "The `followers` field cannot be nested within a list."
+  followers(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): UserWithSubscriptionSlugConnection!
+  followersCount: Int!
+  "The `following` field cannot be nested within a list."
+  following(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+  ): UserWithSubscriptionSlugConnection!
+  followingCount: Int!
+  highlightedDeck: HighlightedDeck
+  id: ID!
+  "The `live_single_sale_offers` field cannot be nested within a list."
+  liveSingleSaleOffers(
+    "Returns single sale offers sorted by `startDate` in descending order when set."
+    newlyListed: Boolean
+  ): [SingleSaleOffer!]!
+    @deprecated(reason: "Use the paginated version instead")
+  "The `lost_auctions` field cannot be nested within a list."
+  lostAuctions(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortByEndDate: SortingOption
+  ): AuctionConnection! @deprecated(reason: "Use lostEnglishAuctions instead")
+  "The `lost_english_auctions` field cannot be nested within a list."
+  lostEnglishAuctions(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortByEndDate: SortingOption
+  ): EnglishAuctionConnection!
+  nickname: String!
+  openAuctions: [Auction!]!
+    @deprecated(reason: "Secondary market is offer only")
+  openEnglishAuctions: [EnglishAuction!]!
+    @deprecated(reason: "Secondary market is offer only")
+  "The `paginated_cards` field cannot be nested within a list."
+  paginatedCards(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    age: Int
+    owned: Boolean
+    "positions of the card capitalized"
+    positions: [Position!]
+    "rarities of the card in lowercase"
+    rarities: [Rarity!]
+    serialNumber: Int
+    shirtNumber: Int
+    slugs: [String!]
+  ): CardConnection!
+  "The `paginated_live_single_sale_offers` field cannot be nested within a list."
+  paginatedLiveSingleSaleOffers(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortByEndDate: SortingOption
+  ): SingleSaleOfferConnection!
+  profile: UserProfile!
+  "The `single_sale_offers` field cannot be nested within a list."
+  singleSaleOffers(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortByEndDate: SortingOption
+  ): SingleSaleOfferConnection!
+  slug: String!
+  "The `sold_single_sale_offers` field cannot be nested within a list."
+  soldSingleSaleOffers(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortByEndDate: SortingOption
+  ): SingleSaleOfferConnection!
+  sorareAddress: String
+  starkKey: String
+  starkKeyRegistered: Boolean!
+  subscriptionSlug: String
+  "The `won_auctions` field cannot be nested within a list."
+  wonAuctions(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortByEndDate: SortingOption
+  ): AuctionConnection! @deprecated(reason: "Use wonEnglishAuctions instead")
+  "The `won_english_auctions` field cannot be nested within a list."
+  wonEnglishAuctions(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    sortByEndDate: SortingOption
+  ): EnglishAuctionConnection!
+}
+"The connection type for UserWithSubscriptionSlug."
+type UserWithSubscriptionSlugConnection {
+  "A list of edges."
+  edges: [UserWithSubscriptionSlugEdge!]!
+  "A list of nodes."
+  nodes: [UserWithSubscriptionSlug!]!
+  "Information to aid in pagination."
+  pageInfo: PageInfo!
+}
+"An edge in a connection."
+type UserWithSubscriptionSlugEdge {
+  "A cursor for use in pagination."
+  cursor: String!
+  "The item at the end of the edge."
+  node: UserWithSubscriptionSlug
+}
+"Utm params"
+input UtmInput {
+  utmSource: String
+  utmMedium: String
+  utmCampaign: String
+  utmTerm: String
+  utmContent: String
+}
+type ValueBoundaries {
+  max: Int!
+  min: Int!
+}
+type ValueOpenBoundaries {
+  max: Int
+  min: Int
+}
+enum WalletStatus {
+  "The card is stored in the Sorare account"
+  INTERNAL
+  "The card is stored in the mapped account"
+  MAPPED
+  "The card has no owner or does not belong to the user"
+  UNKNOWN
+}
+"ETH amount expressed in wei as a string"
+scalar WeiAmount
+"Fast withdrawal"
+interface WithFastWithdrawal {
+  "Get a starkware conditional transfer request for a fast withdrawal"
+  fastWithdrawal(
+    "Amount to withdraw, in wei."
+    amount: String!
+    "Destination Ethereum address."
+    to: String!
+  ): FastWithdrawal!
+}
+"Favorites"
+interface WithFavoriteInterface {
+  favoriteCards: [Card!]!
+  favoriteClubs: [Club!]!
+  favoritePlayers: [Player!]!
+  mySubscriptions(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    types: [SubscribableType!]
+    sortType: SortingOption
+  ): EmailSubscriptionConnection!
+}
+"Objects with memberships"
+interface WithMemberships {
+  activeClubMembership: Membership
+  appearances: Int!
+  beforeLastOwningMembership: Membership
+  clubMemberships: [Membership!]!
+  memberships: [Membership!]!
+}
+"Notifications"
+interface WithNotifications {
+  notifications(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    "Filters notifications by the specified categories when set."
+    categories: [NotificationCategoryInput!]
+  ): NotificationConnection!
+  unreadNotificationsCount: Int!
+}
+"Objects with a picture with derivatives"
+interface WithPictureInterface {
+  pictureUrl(derivative: String): String
+}
+"Objects with publicly accessible cards"
+interface WithPublicCardsInterface {
+  "The `cards` field cannot be nested within a list."
+  cards(
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the last _n_ elements from the list."
+    last: Int
+    age: Int
+    owned: Boolean
+    "positions of the card capitalized"
+    positions: [Position!]
+    "rarities of the card in lowercase"
+    rarities: [Rarity!]
+    serialNumber: Int
+    shirtNumber: Int
+    slugs: [String!]
+  ): CardConnection!
+}
+"With Referral Interface"
+interface WithReferralsInterface {
+  referee: Boolean!
+  refereeReward: ReferralReward
+  referralAsReferee: Referral
+  referralRewardsCount: Int!
+  "Get the list of referrals"
+  referrals(
+    "Page to retrieve. Defaults to 0."
+    page: Int
+    "Maximum number of referrals to return. Defaults to 50."
+    pageSize: Int
+    "Filters the returned referrals by `state` when set."
+    state: ReferralState
+  ): ReferralPaginated!
+  referrer: User
+  unclaimedReferralRewardsCount: Int!
+}
+interface WithSubscriptionsInterface {
+  currentUserSubscription: EmailSubscription
+  slug: String!
+  subscriptionsCount: Int!
+}
+"A withdrawal"
+type Withdrawal {
+  agreedFeeAmount: String!
+  amount: String!
+  createdAt: ISO8601DateTime!
+  id: ID!
+  status: WithdrawalStatus!
+  to: String!
+  transactionHash: String
+}
+enum WithdrawalStatus {
+  "Withdrawal is created and should be confirmed"
+  CREATED
+  "Withdrawal is confirmed"
+  CONFIRMED
+  "Withdrawal has been published on the blockchain"
+  SETTLEMENT_PUBLISHED
+  "Withdrawal has settled on the blockchain"
+  SETTLED
+  "Withdrawal has failed"
+  SETTLEMENT_FAILED
+  "Withdrawal was cancelled"
+  CANCELLED
+}
+"A withdrawal with conversion rates"
+type WithdrawalWithRates {
+  agreedFeeAmount: String!
+  amount: String!
+  amountInFiat: Fiat!
+  createdAt: ISO8601DateTime!
+  id: ID!
+  status: WithdrawalStatus!
+  to: String!
+  transactionHash: String
+}
+"Autogenerated input type of acceptOffer"
+input acceptOfferInput {
+  "List of signed LimitOrder objects."
+  starkSignatures: [StarkSignatureInput!]!
+  blockchainId: String!
+  migrationData: OfferMigrationInput
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of acceptOffer"
+type acceptOfferPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  errors: [UserError!]!
+  offer: Offer
+}
+"Autogenerated input type of addCardsToDeck"
+input addCardsToDeckInput {
+  deckSlug: String!
+  cardSlugs: [String!]!
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of addCardsToDeck"
+type addCardsToDeckPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  currentUser: CurrentUser
+  deck: DeckInterface
+  errors: [UserError!]!
+}
+"Autogenerated input type of addFavouriteClubs"
+input addFavouriteClubsInput {
+  subscribables: [SubscribableInput!]!
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of addFavouriteClubs"
+type addFavouriteClubsPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  currentUser: CurrentUser
+  errors: [UserError!]!
+}
+"Autogenerated input type of approveMigrator"
+input approveMigratorInput {
+  address: String!
+  nonce: Int!
+  signature: String!
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of approveMigrator"
+type approveMigratorPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  errors: [UserError!]!
+}
+"Autogenerated input type of bid"
+input bidInput {
+  "List of signed LimitOrder objects."
+  starkSignatures: [StarkSignatureInput!]!
+  auctionId: ID!
+  "Bid amount, in wei."
+  amount: String!
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of bid"
+type bidPayload {
+  bid: Bid
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  currentUser: CurrentUser
+  errors: [UserError!]!
+}
+"Autogenerated input type of blockUserOffers"
+input blockUserOffersInput {
+  userSlug: String!
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of blockUserOffers"
+type blockUserOffersPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  currentUser: CurrentUser
+}
+"Autogenerated input type of buySkin"
+input buySkinInput {
+  skinId: ID!
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of buySkin"
+type buySkinPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  currentUser: CurrentUser
+  errors: [UserError!]!
+  skin: Skin
+}
+"Autogenerated input type of cancelEthBankWithdrawals"
+input cancelEthBankWithdrawalsInput {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of cancelEthBankWithdrawals"
+type cancelEthBankWithdrawalsPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  currentUser: CurrentUser
+  errors: [UserError!]!
+}
+"Autogenerated input type of cancelFastWithdrawal"
+input cancelFastWithdrawalInput {
+  fastWithdrawalId: ID!
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of cancelFastWithdrawal"
+type cancelFastWithdrawalPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  currentUser: CurrentUser
+  errors: [UserError!]!
+  fastWithdrawal: FastWithdrawal
+}
+"Autogenerated input type of cancelOffer"
+input cancelOfferInput {
+  blockchainId: String!
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of cancelOffer"
+type cancelOfferPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  errors: [UserError!]!
+  offer: Offer
+}
+"Autogenerated input type of cancelWithdrawal"
+input cancelWithdrawalInput {
+  withdrawalId: ID!
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of cancelWithdrawal"
+type cancelWithdrawalPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  currentUser: CurrentUser
+  errors: [UserError!]!
+  withdrawal: Withdrawal
+}
+"Autogenerated input type of checkPhoneNumberVerificationCode"
+input checkPhoneNumberVerificationCodeInput {
+  code: String!
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of checkPhoneNumberVerificationCode"
+type checkPhoneNumberVerificationCodePayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  currentUser: CurrentUser
+  errors: [UserError!]!
+}
+"Autogenerated input type of claimAward"
+input claimAwardInput {
+  award: Award!
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of claimAward"
+type claimAwardPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  currentUser: CurrentUser
+  errors: [UserError!]!
+}
+"Autogenerated input type of claimCardDrop"
+input claimCardDropInput {
+  task: OnboardingTaskEnum!
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of claimCardDrop"
+type claimCardDropPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  currentUser: CurrentUser
+  errors: [UserError!]!
+}
+"Autogenerated input type of claimReferralReward"
+input claimReferralRewardInput {
+  referralRewardId: ID!
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of claimReferralReward"
+type claimReferralRewardPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  currentUser: CurrentUser
+  errors: [UserError!]!
+  referralReward: ReferralReward
+}
+"Autogenerated input type of claimReward"
+input claimRewardInput {
+  so5RewardId: ID!
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of claimReward"
+type claimRewardPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  currentUser: CurrentUser
+  errors: [UserError!]!
+  so5Reward: So5Reward
+}
+"Autogenerated input type of completeOnboardingTask"
+input completeOnboardingTaskInput {
+  task: OnboardingTaskEnum!
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of completeOnboardingTask"
+type completeOnboardingTaskPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  currentUser: CurrentUser
+  errors: [UserError!]!
+}
+"Autogenerated input type of confirmSo5Lineups"
+input confirmSo5LineupsInput {
+  so5LineupIds: [ID!]!
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of confirmSo5Lineups"
+type confirmSo5LineupsPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  errors: [UserError!]!
+  so5Lineups: [So5Lineup!]!
+}
+"Autogenerated input type of createCardWithdrawal"
+input createCardWithdrawalInput {
+  "List of signed LimitOrder objects."
+  starkSignatures: [StarkSignatureInput!]!
+  cardSlug: String!
+  destination: String!
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of createCardWithdrawal"
+type createCardWithdrawalPayload {
+  card: Card
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  errors: [UserError!]!
+}
+"Autogenerated input type of createCustomDeck"
+input createCustomDeckInput {
+  name: String!
+  visible: Boolean!
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of createCustomDeck"
+type createCustomDeckPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  currentUser: CurrentUser
+  deck: CustomDeck
+  errors: [UserError!]!
+}
+"Autogenerated input type of createDirectOffer"
+input createDirectOfferInput {
+  "List of signed LimitOrder objects."
+  starkSignatures: [StarkSignatureInput!]!
+  "ID used as unique deal identifier. Consider using `crypto.getRandomValues(new Uint32Array(4)).join()` to generate one."
+  dealId: String!
+  receiveCardsSlugs: [String!]!
+  sendCardsSlugs: [String!]!
+  sendWeiAmount: WeiAmount!
+  receiverSlug: String!
+  migrationData: OfferMigrationInput
+  "Number of seconds this offer should be valid"
+  duration: Int
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of createDirectOffer"
+type createDirectOfferPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  currentUser: CurrentUser
+  errors: [UserError!]!
+  offer: Offer
+}
+"Autogenerated input type of createEthBankWithdrawalIntent"
+input createEthBankWithdrawalIntentInput {
+  amount: String!
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of createEthBankWithdrawalIntent"
+type createEthBankWithdrawalIntentPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  errors: [UserError!]!
+  ethBankWithdrawalIntent: EthBankWithdrawalIntent
+}
+"Autogenerated input type of createEthMigration"
+input createEthMigrationInput {
+  weiAmount: String!
+  signature: String!
+  nonce: String!
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of createEthMigration"
+type createEthMigrationPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  currentUser: CurrentUser
+  errors: [UserError!]!
+}
+"Autogenerated input type of createEthVault"
+input createEthVaultInput {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of createEthVault"
+type createEthVaultPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  currentUser: CurrentUser
+  errors: [UserError!]!
+}
+"Autogenerated input type of createFastWithdrawal"
+input createFastWithdrawalInput {
+  "List of signed LimitOrder objects."
+  starkSignatures: [StarkSignatureInput!]!
+  amount: String!
+  salt: String!
+  to: String!
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of createFastWithdrawal"
+type createFastWithdrawalPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  currentUser: CurrentUser
+  errors: [UserError!]!
+}
+"Autogenerated input type of createOrUpdateSingleBuyOfferMinPrice"
+input createOrUpdateSingleBuyOfferMinPriceInput {
+  cardSlug: String!
+  amount: String!
+  isPrivate: Boolean!
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of createOrUpdateSingleBuyOfferMinPrice"
+type createOrUpdateSingleBuyOfferMinPricePayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  errors: [UserError!]!
+  singleBuyOfferMinPrice: SingleBuyOfferMinPrice
+}
+"Autogenerated input type of createOrUpdateSo5Lineup"
+input createOrUpdateSo5LineupInput {
+  so5LeaderboardId: ID!
+  so5LineupId: ID
+  name: String!
+  so5Appearances: [So5AppearanceInput!]!
+  draft: Boolean = false
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of createOrUpdateSo5Lineup"
+type createOrUpdateSo5LineupPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  currentUser: CurrentUser
+  errors: [UserError!]!
+  so5Lineup: So5Lineup
+}
+"Autogenerated input type of createPaymentIntent"
+input createPaymentIntentInput {
+  id: ID!
+  weiAmount: String
+  saveCard: Boolean
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of createPaymentIntent"
+type createPaymentIntentPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  currentUserPaymentMethods: [PaymentMethod!]
+  errors: [UserError!]!
+  paymentIntent: PaymentIntent
+}
+"Autogenerated input type of createSingleBuyOffer"
+input createSingleBuyOfferInput {
+  "List of signed LimitOrder objects."
+  starkSignatures: [StarkSignatureInput!]!
+  "ID used as unique deal identifier. Consider using `crypto.getRandomValues(new Uint32Array(4)).join()` to generate one."
+  dealId: String!
+  cardSlug: String!
+  price: WeiAmount!
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of createSingleBuyOffer"
+type createSingleBuyOfferPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  errors: [UserError!]!
+  offer: Offer
+}
+"Autogenerated input type of createSingleSaleOffer"
+input createSingleSaleOfferInput {
+  "List of signed LimitOrder objects."
+  starkSignatures: [StarkSignatureInput!]!
+  "ID used as unique deal identifier. Consider using `crypto.getRandomValues(new Uint32Array(4)).join()` to generate one."
+  dealId: String!
+  cardSlug: String!
+  price: WeiAmount!
+  startDate: ISO8601DateTime
+  migrationData: OfferMigrationInput
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of createSingleSaleOffer"
+type createSingleSaleOfferPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  errors: [UserError!]!
+  offer: SingleSaleOffer
+}
+"Autogenerated input type of createSubscription"
+input createSubscriptionInput {
+  subscribable: SubscribableInput!
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of createSubscription"
+type createSubscriptionPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  errors: [UserError!]!
+  subscription: EmailSubscription
+}
+"Autogenerated input type of createWithdrawal"
+input createWithdrawalInput {
+  amount: String!
+  signature: String!
+  agreedFeeAmount: String
+  dealId: String!
+  to: String!
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of createWithdrawal"
+type createWithdrawalPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  currentUser: CurrentUser
+  errors: [UserError!]!
+  withdrawal: Withdrawal
+}
+"Autogenerated input type of deleteCustomDeck"
+input deleteCustomDeckInput {
+  deckSlug: String!
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of deleteCustomDeck"
+type deleteCustomDeckPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  currentUser: CurrentUser
+  deck: CustomDeck
+  errors: [UserError!]!
+}
+"Autogenerated input type of deleteSo5Lineup"
+input deleteSo5LineupInput {
+  so5LineupId: ID!
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of deleteSo5Lineup"
+type deleteSo5LineupPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  errors: [UserError!]!
+  so5Leaderboard: So5Leaderboard!
+}
+"Autogenerated input type of deleteSubscription"
+input deleteSubscriptionInput {
+  slug: String!
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of deleteSubscription"
+type deleteSubscriptionPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  errors: [UserError!]!
+  subscribable: Subscribable
+  subscription: EmailSubscription
+}
+"Autogenerated input type of deleteUserSo5Lineups"
+input deleteUserSo5LineupsInput {
+  so5FixtureId: ID!
+  so5LeagueIds: [ID!]
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of deleteUserSo5Lineups"
+type deleteUserSo5LineupsPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  errors: [UserError!]!
+  so5Fixture: So5Fixture!
+}
+"Autogenerated input type of destroyAccount"
+input destroyAccountInput {
+  password: String!
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of destroyAccount"
+type destroyAccountPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  currentUser: CurrentUser
+  errors: [UserError!]!
+}
+"Autogenerated input type of destroyReferral"
+input destroyReferralInput {
+  referralId: ID!
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of destroyReferral"
+type destroyReferralPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  currentUser: CurrentUser
+  errors: [UserError!]!
+}
+"Autogenerated input type of detachPaymentMethod"
+input detachPaymentMethodInput {
+  paymentMethod: String!
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of detachPaymentMethod"
+type detachPaymentMethodPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  currentUser: CurrentUser!
+  errors: [UserError!]!
+}
+"Autogenerated input type of disable2fa"
+input disable2faInput {
+  password: String!
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of disable2fa"
+type disable2faPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  currentUser: CurrentUser
+  errors: [UserError!]!
+}
+"Autogenerated input type of disconnectOmniauthProvider"
+input disconnectOmniauthProviderInput {
+  provider: String!
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of disconnectOmniauthProvider"
+type disconnectOmniauthProviderPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  errors: [UserError!]!
+  userProfile: UserProfile
+}
+"Autogenerated input type of draftCommonTeam"
+input draftCommonTeamInput {
+  playerIds: [ID!]!
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of draftCommonTeam"
+type draftCommonTeamPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  errors: [UserError!]!
+}
+"Autogenerated input type of editCardInDeck"
+input editCardInDeckInput {
+  deckSlug: String!
+  cardSlug: String!
+  newIndex: Int!
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of editCardInDeck"
+type editCardInDeckPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  currentUser: CurrentUser
+  deck: DeckInterface
+  errors: [UserError!]!
+}
+"Autogenerated input type of editCustomDeck"
+input editCustomDeckInput {
+  deckSlug: String!
+  name: String!
+  visible: Boolean!
+  newIndex: Int
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of editCustomDeck"
+type editCustomDeckPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  currentUser: CurrentUser
+  deck: CustomDeck
+  errors: [UserError!]!
+}
+"Autogenerated input type of enable2fa"
+input enable2faInput {
+  otpAttempt: String!
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of enable2fa"
+type enable2faPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  currentUser: CurrentUser
+  errors: [UserError!]!
+}
+"Autogenerated input type of generateOtpBackupCodes"
+input generateOtpBackupCodesInput {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of generateOtpBackupCodes"
+type generateOtpBackupCodesPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  currentUser: CurrentUser
+  errors: [UserError!]!
+}
+"Autogenerated input type of markNotificationsAsRead"
+input markNotificationsAsReadInput {
+  notificationId: String
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of markNotificationsAsRead"
+type markNotificationsAsReadPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  currentUser: CurrentUser
+  errors: [UserError!]!
+}
+"Autogenerated input type of mintCardsForUsers"
+input mintCardsForUsersInput {
+  intents: [MintCardsForUsersInput!]!
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of mintCardsForUsers"
+type mintCardsForUsersPayload {
+  cards: [Card!]
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  errors: [UserError!]!
+}
+"Autogenerated input type of prepareAcceptOffer"
+input prepareAcceptOfferInput {
+  dealId: String!
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of prepareAcceptOffer"
+type prepareAcceptOfferPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  errors: [UserError!]!
+  limitOrders: [LimitOrder!]
+}
+"Autogenerated input type of prepareCardWithdrawal"
+input prepareCardWithdrawalInput {
+  cardSlug: String!
+  destination: String
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of prepareCardWithdrawal"
+type prepareCardWithdrawalPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  errors: [UserError!]!
+  transferRequest: TransferRequest
+}
+"Autogenerated input type of prepareOffer"
+input prepareOfferInput {
+  type: OfferType
+  sendCardsSlugs: [String!]!
+  receiveCardsSlugs: [String!]!
+  sendWeiAmount: WeiAmount!
+  receiveWeiAmount: WeiAmount!
+  receiverSlug: String
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of prepareOffer"
+type prepareOfferPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  errors: [UserError!]!
+  "List of LimitOrder objects used as payload to sign for the `createSingleSaleOffer`, `createDirectOffer` or `createSingleBuyOffer` mutations."
+  limitOrders: [LimitOrder!]
+}
+"Autogenerated input type of rejectOffer"
+input rejectOfferInput {
+  blockchainId: String!
+  block: Boolean
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of rejectOffer"
+type rejectOfferPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  errors: [UserError!]!
+  offer: Offer
+}
+"Autogenerated input type of relayCall"
+input relayCallInput {
+  encodedFunction: String!
+  extraGas: Int!
+  signature: String!
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of relayCall"
+type relayCallPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  currentUser: CurrentUser!
+  errors: [UserError!]!
+  transaction: EthereumTransaction
+}
+"Autogenerated input type of removeCardFromDeck"
+input removeCardFromDeckInput {
+  deckSlug: String!
+  cardSlug: String!
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of removeCardFromDeck"
+type removeCardFromDeckPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  currentUser: CurrentUser
+  deck: DeckInterface
+  errors: [UserError!]!
+}
+"Autogenerated input type of resetCommonDraft"
+input resetCommonDraftInput {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of resetCommonDraft"
+type resetCommonDraftPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  errors: [UserError!]!
+  userSettings: UserSettings
+}
+"Autogenerated input type of resetPrivateKey"
+input resetPrivateKeyInput {
+  starkKey: String
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of resetPrivateKey"
+type resetPrivateKeyPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  currentUser: CurrentUser!
+  errors: [UserError!]!
+}
+"Autogenerated input type of resumeOnboarding"
+input resumeOnboardingInput {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of resumeOnboarding"
+type resumeOnboardingPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  currentUser: CurrentUser
+  errors: [UserError!]!
+}
+"Autogenerated input type of setDeviceToken"
+input setDeviceTokenInput {
+  devicePlatform: String!
+  deviceToken: String!
+  disable: Boolean = false
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of setDeviceToken"
+type setDeviceTokenPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  errors: [UserError!]!
+}
+"Autogenerated input type of signIn"
+input signInInput {
+  email: String
+  password: String
+  otpSessionChallenge: String
+  otpAttempt: String
+  gaClientId: String
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of signIn"
+type signInPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  currentUser: CurrentUser
+  errors: [UserError!]!
+  otpSessionChallenge: String
+}
+"Autogenerated input type of signUp"
+input signUpInput {
+  nickname: String!
+  email: String!
+  password: String!
+  certified: String
+  acceptTcu: Boolean
+  agreedToReceiveOffersFromPartners: Boolean
+  recaptchaToken: String!
+  sorareAddress: String!
+  sorarePrivateKey: SorarePrivateKeyAttributes!
+  sorarePrivateKeyBackup: String!
+  starkKey: String
+  referrer: String
+  invitationToken: String
+  impactClickId: String
+  gaClientId: String
+  utmParams: UtmInput
+  "The path the new User is from (to be used to redirect him after email confirmation)"
+  fromPath: String
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of signUp"
+type signUpPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  currentUser: CurrentUser
+  errors: [UserError!]!
+}
+"Autogenerated input type of skipOnboarding"
+input skipOnboardingInput {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of skipOnboarding"
+type skipOnboardingPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  currentUser: CurrentUser
+  errors: [UserError!]!
+}
+"Autogenerated input type of unblockUserOffers"
+input unblockUserOffersInput {
+  userSlug: String!
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of unblockUserOffers"
+type unblockUserOffersPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  currentUser: CurrentUser
+}
+"Autogenerated input type of updateSubscription"
+input updateSubscriptionInput {
+  slug: String!
+  rarities: [String!]!
+  enabled: Boolean!
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of updateSubscription"
+type updateSubscriptionPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  errors: [UserError!]!
+  subscribable: Subscribable
+  subscription: EmailSubscription
+}
+"Autogenerated input type of updateUserProfile"
+input updateUserProfileInput {
+  nickname: String
+  status: String
+  clubName: String
+  picture: File
+  clubBannerId: ID
+  clubShieldId: ID
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of updateUserProfile"
+type updateUserProfilePayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  errors: [UserError!]!
+  userProfile: UserProfile
+}
+"Autogenerated input type of updateUserSettings"
+input updateUserSettingsInput {
+  notificationPreference: NotificationPreferenceInput
+  lifecycle: UserLifecycleInput
+  locale: String
+  acceptTcu: Boolean
+  currency: Currency
+  fiatCurrency: FiatCurrency
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of updateUserSettings"
+type updateUserSettingsPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  errors: [UserError!]!
+  userSettings: UserSettings
+}
+"Autogenerated input type of verifyPhoneNumber"
+input verifyPhoneNumberInput {
+  phoneNumber: String!
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+}
+"Autogenerated return type of verifyPhoneNumber"
+type verifyPhoneNumberPayload {
+  "A unique identifier for the client performing the mutation."
+  clientMutationId: String
+  currentUser: CurrentUser
+  errors: [UserError!]!
+}

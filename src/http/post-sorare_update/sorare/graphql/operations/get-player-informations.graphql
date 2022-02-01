@@ -1,0 +1,9 @@
+query getPlayerInformations($slug: String!) {
+  player(slug: $slug) {
+    activeClub {
+      id
+      name
+    }
+    displayName
+  }
+}

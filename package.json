@@ -1,0 +1,34 @@
+{
+  "name": "sorare-notion",
+  "version": "0.0.0",
+  "description": "A fresh new Architect project!",
+  "scripts": {
+    "start": "arc sandbox",
+    "prestart": "npm run build",
+    "deploy": "arc deploy",
+    "predeploy": "npm run build",
+    "build": "tsc",
+    "clean": "rm src/http/post-sorare_update/index.js",
+    "download-sorare-schema": "npx -p @apollo/rover rover graph introspect https://api.sorare.com/graphql > src/http/post-sorare_update/schema.graphql"
+  },
+  "devDependencies": {
+    "@architect/architect": "^9.5.4",
+    "@graphql-codegen/typescript": "^2.4.2",
+    "@graphql-codegen/typescript-graphql-request": "^4.3.3",
+    "@graphql-codegen/typescript-operations": "^2.2.3",
+    "@types/bcryptjs": "^2.4.2",
+    "@types/node": "^17.0.13",
+    "axios": "^0.25.0",
+    "bcryptjs": "^2.4.3",
+    "typescript": "^4.5.5"
+  },
+  "volta": {
+    "node": "16.13.2"
+  },
+  "dependencies": {
+    "@graphql-codegen/cli": "^2.4.0",
+    "crypto": "^1.0.1",
+    "graphql": "^16.3.0",
+    "graphql-request": "^4.0.0"
+  }
+}
