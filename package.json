@@ -9,10 +9,12 @@
     "predeploy": "npm run build",
     "build": "tsc",
     "clean": "rm src/http/post-sorare_update/index.js",
+    "codegen": "graphql-codegen --template typescript-node --schema schema.graphql",
     "download-sorare-schema": "npx -p @apollo/rover rover graph introspect https://api.sorare.com/graphql > src/http/post-sorare_update/schema.graphql"
   },
   "devDependencies": {
     "@architect/architect": "^9.5.4",
+    "@graphql-codegen/add": "^3.1.1",
     "@graphql-codegen/typescript": "^2.4.2",
     "@graphql-codegen/typescript-graphql-request": "^4.3.3",
     "@graphql-codegen/typescript-operations": "^2.2.3",
@@ -27,8 +29,10 @@
   },
   "dependencies": {
     "@graphql-codegen/cli": "^2.4.0",
+    "@notionhq/client": "^0.4.13",
     "crypto": "^1.0.1",
     "graphql": "^16.3.0",
-    "graphql-request": "^4.0.0"
+    "graphql-request": "^4.0.0",
+    "slugify": "^1.6.5"
   }
 }

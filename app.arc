@@ -5,6 +5,7 @@ sorare-notion
 get /
 post /sorare_update
 
-# @aws
+@aws
+timeout 30
 # profile default
 # region us-west-1

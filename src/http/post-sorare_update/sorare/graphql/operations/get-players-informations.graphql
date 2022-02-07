@@ -1,0 +1,6 @@
+# import PlayerInfo from '../fragments/player-info.graphql'
+query getPlayersInformations($slugs: [String!]!) {
+  players(slugs: $slugs) {
+    ...PlayerInfo
+  }
+}

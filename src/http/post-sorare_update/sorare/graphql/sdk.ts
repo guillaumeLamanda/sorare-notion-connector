@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { GraphQLClient } from 'graphql-request';
 import * as Dom from 'graphql-request/dist/types.dom';
 import gql from 'graphql-tag';
@@ -7471,12 +7472,21 @@ export type VerifyPhoneNumberPayload = {
   errors: Array<UserError>;
 };
 
+export type PlayerInfoFragment = { __typename?: 'Player', id: string, slug: string, displayName: string, position: string, pictureUrl?: string | null, cardSampleUrl?: string | null, stats?: { __typename?: 'Stats', assists: number, goals: number } | null, activeClub?: { __typename?: 'Club', id: string, name: string, domesticLeague?: { __typename?: 'Competition', id: string, name: string, displayName: string } | null } | null, status: { __typename?: 'PlayerStatus', lastFifteenSo5Appearances?: number | null, lastFifteenSo5AverageScore?: number | null, lastFiveSo5Appearances?: number | null, lastFiveSo5AverageScore?: number | null, playingStatus?: string | null }, cards: { __typename?: 'CardConnection', edges: Array<{ __typename?: 'CardEdge', node?: { __typename?: 'Card', priceRange?: { __typename?: 'Range', max: string, min: string } | null } | null }> } };
+
 export type GetPlayerInformationsQueryVariables = Exact<{
   slug: Scalars['String'];
 }>;
 
 
-export type GetPlayerInformationsQuery = { __typename?: 'Query', player: { __typename?: 'Player', displayName: string, activeClub?: { __typename?: 'Club', id: string, name: string } | null } };
+export type GetPlayerInformationsQuery = { __typename?: 'Query', player: { __typename?: 'Player', id: string, slug: string, displayName: string, position: string, pictureUrl?: string | null, cardSampleUrl?: string | null, stats?: { __typename?: 'Stats', assists: number, goals: number } | null, activeClub?: { __typename?: 'Club', id: string, name: string, domesticLeague?: { __typename?: 'Competition', id: string, name: string, displayName: string } | null } | null, status: { __typename?: 'PlayerStatus', lastFifteenSo5Appearances?: number | null, lastFifteenSo5AverageScore?: number | null, lastFiveSo5Appearances?: number | null, lastFiveSo5AverageScore?: number | null, playingStatus?: string | null }, cards: { __typename?: 'CardConnection', edges: Array<{ __typename?: 'CardEdge', node?: { __typename?: 'Card', priceRange?: { __typename?: 'Range', max: string, min: string } | null } | null }> } } };
+
+export type GetPlayersInformationsQueryVariables = Exact<{
+  slugs: Array<Scalars['String']> | Scalars['String'];
+}>;
+
+
+export type GetPlayersInformationsQuery = { __typename?: 'Query', players: Array<{ __typename?: 'Player', id: string, slug: string, displayName: string, position: string, pictureUrl?: string | null, cardSampleUrl?: string | null, stats?: { __typename?: 'Stats', assists: number, goals: number } | null, activeClub?: { __typename?: 'Club', id: string, name: string, domesticLeague?: { __typename?: 'Competition', id: string, name: string, displayName: string } | null } | null, status: { __typename?: 'PlayerStatus', lastFifteenSo5Appearances?: number | null, lastFifteenSo5AverageScore?: number | null, lastFiveSo5Appearances?: number | null, lastFiveSo5AverageScore?: number | null, playingStatus?: string | null }, cards: { __typename?: 'CardConnection', edges: Array<{ __typename?: 'CardEdge', node?: { __typename?: 'Card', priceRange?: { __typename?: 'Range', max: string, min: string } | null } | null }> } }> };
 
 export type SignInMutationMutationVariables = Exact<{
   input: SignInInput;
@@ -7486,18 +7496,61 @@ export type SignInMutationMutationVariables = Exact<{
 
 export type SignInMutationMutation = { __typename?: 'Mutation', signIn?: { __typename?: 'signInPayload', otpSessionChallenge?: string | null, currentUser?: { __typename?: 'CurrentUser', slug: string, jwtToken: { __typename?: 'JwtToken', token: string, expiredAt: any } } | null, errors: Array<{ __typename?: 'UserError', message: string }> } | null };
 
-
-export const GetPlayerInformationsDocument = gql`
-    query getPlayerInformations($slug: String!) {
-  player(slug: $slug) {
-    activeClub {
+export const PlayerInfoFragmentDoc = gql`
+    fragment PlayerInfo on Player {
+  id
+  slug
+  stats(seasonStartYear: 2021) {
+    assists
+    goals
+  }
+  activeClub {
+    id
+    name
+    domesticLeague {
       id
       name
+      displayName
     }
-    displayName
+  }
+  displayName
+  slug
+  position
+  pictureUrl
+  status {
+    lastFifteenSo5Appearances
+    lastFifteenSo5AverageScore
+    lastFiveSo5Appearances
+    lastFiveSo5AverageScore
+    playingStatus
+  }
+  cardSampleUrl(rarity: "limited")
+  cards(rarities: limited) {
+    edges {
+      node {
+        priceRange {
+          max
+          min
+        }
+      }
+    }
   }
 }
     `;
+export const GetPlayerInformationsDocument = gql`
+    query getPlayerInformations($slug: String!) {
+  player(slug: $slug) {
+    ...PlayerInfo
+  }
+}
+    ${PlayerInfoFragmentDoc}`;
+export const GetPlayersInformationsDocument = gql`
+    query getPlayersInformations($slugs: [String!]!) {
+  players(slugs: $slugs) {
+    ...PlayerInfo
+  }
+}
+    ${PlayerInfoFragmentDoc}`;
 export const SignInMutationDocument = gql`
     mutation signInMutation($input: signInInput!, $aud: String!) {
   signIn(input: $input) {
@@ -7525,6 +7578,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
   return {
     getPlayerInformations(variables: GetPlayerInformationsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetPlayerInformationsQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<GetPlayerInformationsQuery>(GetPlayerInformationsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getPlayerInformations');
+    },
+    getPlayersInformations(variables: GetPlayersInformationsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetPlayersInformationsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetPlayersInformationsQuery>(GetPlayersInformationsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getPlayersInformations');
     },
     signInMutation(variables: SignInMutationMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<SignInMutationMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<SignInMutationMutation>(SignInMutationDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'signInMutation');

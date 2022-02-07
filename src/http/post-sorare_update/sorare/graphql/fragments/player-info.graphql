@@ -1,0 +1,39 @@
+fragment PlayerInfo on Player {
+  id
+  slug
+  stats(seasonStartYear: 2021) {
+    assists
+    goals
+  }
+  activeClub {
+    id
+    name
+    domesticLeague {
+      id
+      name
+      displayName
+    }
+  }
+  displayName
+  slug
+  position
+  pictureUrl
+  status {
+    lastFifteenSo5Appearances
+    lastFifteenSo5AverageScore
+    lastFiveSo5Appearances
+    lastFiveSo5AverageScore
+    playingStatus
+  }
+  cardSampleUrl(rarity: "limited")
+  cards(rarities: limited) {
+    edges {
+      node {
+        priceRange {
+          max
+          min
+        }
+      }
+    }
+  }
+}
