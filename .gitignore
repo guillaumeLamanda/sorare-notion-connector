@@ -1,3 +1,7 @@
 node_modules
 **/*.js
 .env
+sam.json
+sam.yml
+sam.yaml
+events.json

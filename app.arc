@@ -1,11 +1,10 @@
 @app
 sorare-notion
 
-@http
-get /
-post /sorare_update
+@scheduled
+sorare-update cron(0 9-20 * * ? *)
 
 @aws
 timeout 30
-# profile default
-# region us-west-1
+profile personal
+region eu-west-1

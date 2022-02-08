@@ -4,10 +4,11 @@
   "description": "A fresh new Architect project!",
   "scripts": {
     "start": "arc sandbox",
-    "prestart": "npm run build",
+    "prestart": "yarn build && yarn codegen",
     "deploy": "arc deploy",
-    "predeploy": "npm run build",
+    "predeploy": "yarn build",
     "build": "tsc",
+    "build:watch": "tsc --watch",
     "clean": "rm src/http/post-sorare_update/index.js",
     "codegen": "graphql-codegen --template typescript-node --schema schema.graphql",
     "download-sorare-schema": "npx -p @apollo/rover rover graph introspect https://api.sorare.com/graphql > src/http/post-sorare_update/schema.graphql"

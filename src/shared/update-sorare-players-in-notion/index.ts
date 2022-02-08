@@ -19,7 +19,7 @@ const notionClient = new Client({
 
 // const isNotionPage = (result: QueryDatabaseResponse["result"]): result is Page => {
 
-export async function handler(request: Request) {
+export async function updateSorarePlayersInNotion() {
   const { results } = await notionClient.databases.query({
     database_id: "ca441f594c624eadad73677652dbb2ab",
     filter: {
@@ -157,10 +157,4 @@ export async function handler(request: Request) {
         .catch(console.error);
     })
   ).catch(console.error);
-
-  const response = {
-    statusCode: 200,
-  };
-
-  return response;
 }
