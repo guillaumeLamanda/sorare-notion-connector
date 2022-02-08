@@ -21,7 +21,7 @@ const notionClient = new Client({
 
 export async function updateSorarePlayersInNotion() {
   const { results } = await notionClient.databases.query({
-    database_id: "ca441f594c624eadad73677652dbb2ab",
+    database_id: process.env.NOTION_DB_ID,
     filter: {
       or: [
         {

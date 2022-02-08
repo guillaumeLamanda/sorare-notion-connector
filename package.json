@@ -1,7 +1,7 @@
 {
-  "name": "sorare-notion",
-  "version": "0.0.0",
-  "description": "A fresh new Architect project!",
+  "name": "sorare-notion-connector",
+  "version": "0.0.1",
+  "description": "Connector between Sorare and notion to get autofilled player informations in a notion database",
   "scripts": {
     "start": "arc sandbox",
     "prestart": "yarn build && yarn codegen",
