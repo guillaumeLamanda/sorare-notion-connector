@@ -1,6 +1,9 @@
 @app
 sorare-notion
 
+@http
+post /update-sorare-players
+
 @scheduled
 sorare-update cron(0 9-20 * * ? *)
 
